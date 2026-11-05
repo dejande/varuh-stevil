@@ -1,0 +1,125 @@
+import { registerSW } from 'virtual:pwa-register';
+import { DEFAULT_PROFILE } from './core/profile';
+import { ALL_OPS, ALL_RANGES, type Lang, type Op, type Profile, type Range, type Speed } from './core/types';
+import { Battle, type BattleOutcome } from './game/battle';
+import { translate, type MessageKey, type Values } from './i18n/i18n';
+import './style.css';
+
+registerSW({ immediate: true });
+
+const SPEEDS: Speed[] = ['relaxed', 'normal', 'fast'];
+const LANGS: Lang[] = ['sl', 'en'];
+
+const app = document.querySelector<HTMLElement>('#app')!;
+const profile: Profile = structuredClone(DEFAULT_PROFILE);
+let battle: Battle | null = null;
+
+function t(key: MessageKey, values: Values = {}): string {
+  return translate(profile.lang, key, { gender: profile.gender, hero: profile.heroName, ...values });
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+}
+
+function applyLang(): void {
+  document.documentElement.lang = profile.lang;
+  document.title = t('app.title');
+}
+
+function renderHome(): void {
+  applyLang();
+  const s = profile.settings;
+  const chip = (name: string, value: string, checked: boolean, label: string, type: 'radio' | 'checkbox') =>
+    `<label class="chip"><input type="${type}" name="${name}" value="${value}" ${checked ? 'checked' : ''}><span>${label}</span></label>`;
+
+  app.innerHTML = `
+    <section class="home">
+      <h1>${t('app.title')}</h1>
+      <p class="subtitle">${t('app.subtitle')}</p>
+      <p class="greeting">${escapeHtml(t('home.greeting'))}</p>
+      <form class="settings">
+        <fieldset><legend>${t('settings.language')}</legend>
+          ${LANGS.map((l) => chip('lang', l, profile.lang === l, t(`lang.${l}` as MessageKey), 'radio')).join('')}
+        </fieldset>
+        <fieldset><legend>${t('settings.ops')}</legend>
+          ${ALL_OPS.map((op) => chip('ops', op, s.ops.includes(op), t(`op.${op}` as MessageKey), 'checkbox')).join('')}
+        </fieldset>
+        <fieldset><legend>${t('settings.range')}</legend>
+          ${ALL_RANGES.map((r) => chip('range', String(r), s.range === r, t('settings.rangeValue', { max: r }), 'radio')).join('')}
+        </fieldset>
+        <fieldset><legend>${t('settings.speed')}</legend>
+          ${SPEEDS.map((sp) => chip('speed', sp, profile.speed === sp, t(`speed.${sp}` as MessageKey), 'radio')).join('')}
+        </fieldset>
+        <fieldset><legend>${t('home.practice')}</legend>
+          ${chip('missing', 'on', s.missingNumber, t('settings.missing'), 'checkbox')}
+        </fieldset>
+        <p class="error" hidden>${t('settings.needOp')}</p>
+        <button type="submit" class="btn-primary btn-big">${t('home.play')} ⚔</button>
+      </form>
+    </section>`;
+
+  const form = app.querySelector('form')!;
+  form.addEventListener('change', (e) => {
+    const input = e.target as HTMLInputElement;
+    if (input.name === 'lang') {
+      profile.lang = input.value as Lang;
+      renderHome();
+      return;
+    }
+    readSettings(form);
+  });
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    readSettings(form);
+    if (profile.settings.ops.length === 0) {
+      (form.querySelector('.error') as HTMLElement).hidden = false;
+      return;
+    }
+    void startBattle();
+  });
+}
+
+function readSettings(form: HTMLFormElement): void {
+  const data = new FormData(form);
+  profile.settings = {
+    ops: data.getAll('ops') as Op[],
+    range: Number(data.get('range')) as Range,
+    missingNumber: data.get('missing') === 'on',
+  };
+  profile.speed = data.get('speed') as Speed;
+  (form.querySelector('.error') as HTMLElement).hidden = profile.settings.ops.length > 0;
+}
+
+async function startBattle(): Promise<void> {
+  battle?.destroy();
+  battle = new Battle(app, profile, showResult, goHome);
+  await battle.start();
+}
+
+function goHome(): void {
+  battle?.destroy();
+  battle = null;
+  renderHome();
+}
+
+function showResult(outcome: BattleOutcome): void {
+  battle?.destroy();
+  battle = null;
+  const stars = [1, 2, 3].map((i) => `<span class="${i <= outcome.stars ? 'on' : 'off'}">★</span>`).join('');
+  app.innerHTML = `
+    <section class="result ${outcome.won ? 'won' : 'lost'}">
+      <h2>${outcome.won ? t('result.won') : t('result.lost')}</h2>
+      ${outcome.won ? `<p class="stars" aria-label="${t('result.stars', { count: outcome.stars })}">${stars}</p><p>${t('result.stars', { count: outcome.stars })}</p>` : ''}
+      <p>${t('result.mistakes', { count: outcome.mistakes })}</p>
+      <div class="actions">
+        <button class="btn-primary btn-big" data-action="again">${t('result.again')}</button>
+        <button class="btn-secondary" data-action="home">${t('result.home')}</button>
+      </div>
+    </section>`;
+  app.querySelector('[data-action="again"]')!.addEventListener('click', () => void startBattle());
+  app.querySelector('[data-action="home"]')!.addEventListener('click', goHome);
+  (app.querySelector('[data-action="again"]') as HTMLButtonElement).focus();
+}
+
+renderHome();
