@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
+import { COLORS, FONT_FAMILY } from '../theme';
 
 export const WIDTH = 800;
 export const HEIGHT = 360;
-const GROUND_Y = 290;
-const HERO_X = 130;
-const MONSTER_START_X = 740;
-const MONSTER_HIT_X = 215;
+const GROUND_Y = 292;
+const HERO_X = 150;
+const MONSTER_START_X = 730;
+const MONSTER_HIT_X = 235;
 /** Relaxed: the monster stops here (0 = start, 1 = at the hero); each wrong answer moves it one step on. */
 const RELAXED_STOP = 0.55;
 const RELAXED_STEP = 0.15;
@@ -13,26 +14,30 @@ const RELAXED_STEP = 0.15;
 const TIMED_STEP = 0.25;
 const WALK_IN_SECONDS = 2.5;
 
-const MONSTER_COLOURS = [0x8e9aaf, 0x9b8ec4, 0x7fa7a0, 0xa58fa0];
+/** Chapter 1 fog imps come in a few fog shades. */
+const FOG_SHADES = [COLORS.fog, 0xa9b7cf, 0xc4b4cf, 0xb3c4c9];
 
 export interface MonsterConfig {
   /** Seconds to reach the hero, or null for Relaxed. */
   seconds: number | null;
 }
 
-/** Placeholder-art battle: hero on the left, one monster walking in from the right. */
+const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+/** Paper-cut alpine battlefield: the Keeper on the left, one fog imp drifting in from the right. */
 export class BattleScene extends Phaser.Scene {
   onReachHero: () => void = () => {};
   readonly ready: Promise<void>;
   private resolveReady!: () => void;
 
   private monster?: Phaser.GameObjects.Container;
+  private orb?: Phaser.GameObjects.Arc;
   private progress = 0;
   private limit = 1;
   private speedPerSec = 0;
   private relaxed = false;
   private paused = false;
-  private colourIndex = 0;
+  private shadeIndex = 0;
 
   constructor() {
     super('battle');
@@ -40,7 +45,8 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.drawBackground();
+    this.drawLandscape();
+    this.drawRogec();
     this.drawHero();
     this.resolveReady();
   }
@@ -56,9 +62,9 @@ export class BattleScene extends Phaser.Scene {
       this.limit = 1;
       this.speedPerSec = 1 / (cfg.seconds as number);
     }
-    this.monster = this.makeMonster(MONSTER_COLOURS[this.colourIndex++ % MONSTER_COLOURS.length]);
-    this.monster.setAlpha(0);
-    this.tweens.add({ targets: this.monster, alpha: 1, duration: 250 });
+    this.monster = this.makeFogImp(FOG_SHADES[this.shadeIndex++ % FOG_SHADES.length]);
+    this.monster.setAlpha(0).setScale(0.6);
+    this.tweens.add({ targets: this.monster, alpha: 1, scale: 1, duration: 350, ease: 'Back.easeOut' });
     this.placeMonster();
     this.paused = false;
   }
@@ -78,31 +84,52 @@ export class BattleScene extends Phaser.Scene {
       this.progress = Math.min(1, this.progress + TIMED_STEP);
     }
     this.tweens.add({ targets: this.monster, x: this.xFor(this.progress), duration: 300, ease: 'Quad.easeOut' });
-    this.cameras.main.shake(150, 0.004);
+    if (!reduceMotion()) this.cameras.main.shake(140, 0.003);
     return this.progress >= 0.999;
   }
 
-  /** Correct answer: a spell flies from the hero and the monster disappears. */
-  defeatMonster(): Promise<void> {
+  /** Correct answer: the answer flies from the staff as a golden number and dissolves the fog. */
+  defeatMonster(answer: string): Promise<void> {
     const target = this.monster;
     if (!target) return Promise.resolve();
     this.monster = undefined;
-    const spell = this.add.star(HERO_X + 30, GROUND_Y - 70, 5, 8, 18, 0xffd84d).setStrokeStyle(2, 0xffffff);
+    const fromX = HERO_X + 34;
+    const fromY = GROUND_Y - 112;
+    const spell = this.add
+      .text(fromX, fromY, answer, {
+        fontFamily: FONT_FAMILY,
+        fontSize: '44px',
+        fontStyle: '800',
+        color: COLORS.honeyCss,
+        stroke: COLORS.inkCss,
+        strokeThickness: 7,
+      })
+      .setOrigin(0.5)
+      .setScale(0.5);
+    const path = { t: 0 };
+    const toX = target.x;
+    const toY = target.y - 48;
+    const peak = Math.min(fromY, toY) - 70;
     return new Promise((resolve) => {
       this.tweens.add({
-        targets: spell,
-        x: target.x,
-        y: target.y - 40,
-        angle: 360,
-        duration: 350,
+        targets: path,
+        t: 1,
+        duration: reduceMotion() ? 150 : 480,
+        ease: 'Sine.easeIn',
+        onUpdate: () => {
+          const t = path.t;
+          spell.x = fromX + (toX - fromX) * t;
+          spell.y = (1 - t) * (1 - t) * fromY + 2 * (1 - t) * t * peak + t * t * toY;
+          spell.setScale(0.5 + 0.7 * t);
+        },
         onComplete: () => {
           spell.destroy();
-          this.burst(target.x, target.y - 40, 0xffd84d);
+          this.dissolve(target);
           this.tweens.add({
             targets: target,
-            scale: 0,
+            scale: 1.35,
             alpha: 0,
-            duration: 300,
+            duration: 380,
             onComplete: () => {
               target.destroy();
               resolve();
@@ -113,18 +140,19 @@ export class BattleScene extends Phaser.Scene {
     });
   }
 
-  /** The monster reached the hero: the hero flashes and the monster runs off. */
+  /** The fog imp reached the hero: it wraps the hero in fog for a moment and blows away. */
   hitHero(): Promise<void> {
     const target = this.monster;
     this.monster = undefined;
-    this.cameras.main.flash(250, 255, 120, 120);
+    if (!reduceMotion()) this.cameras.main.shake(220, 0.006);
     if (!target) return Promise.resolve();
     return new Promise((resolve) => {
       this.tweens.add({
         targets: target,
-        x: WIDTH + 80,
+        x: HERO_X + 10,
+        scale: 1.5,
         alpha: 0,
-        duration: 600,
+        duration: 650,
         ease: 'Quad.easeIn',
         onComplete: () => {
           target.destroy();
@@ -134,15 +162,16 @@ export class BattleScene extends Phaser.Scene {
     });
   }
 
-  update(_time: number, delta: number): void {
-    if (!this.monster || this.paused) return;
-    if (this.progress < this.limit) {
-      this.progress = Math.min(this.limit, this.progress + (this.speedPerSec * delta) / 1000);
-      this.placeMonster();
-      if (this.progress >= 1) {
-        this.paused = true;
-        this.onReachHero();
-      }
+  update(time: number, delta: number): void {
+    if (this.orb) this.orb.setScale(1 + Math.sin(time / 260) * 0.12);
+    if (!this.monster) return;
+    this.monster.y = GROUND_Y - 6 + Math.sin(time / 300) * 4;
+    if (this.paused || this.progress >= this.limit) return;
+    this.progress = Math.min(this.limit, this.progress + (this.speedPerSec * delta) / 1000);
+    this.placeMonster();
+    if (this.progress >= 1) {
+      this.paused = true;
+      this.onReachHero();
     }
   }
 
@@ -151,63 +180,163 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private placeMonster(): void {
-    if (!this.monster) return;
-    this.monster.x = this.xFor(this.progress);
-    this.monster.y = GROUND_Y + Math.sin(this.time.now / 120) * 2;
+    if (this.monster) this.monster.x = this.xFor(this.progress);
   }
 
-  private drawBackground(): void {
-    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x9fc9e8);
-    this.add.triangle(180, GROUND_Y, 0, 0, 220, -210, 440, 0, 0x7d8ea3).setOrigin(0.5, 1);
-    this.add.triangle(520, GROUND_Y, 0, 0, 260, -250, 520, 0, 0x6c7d93).setOrigin(0.5, 1);
-    this.add.triangle(560, GROUND_Y - 190, 0, 0, 60, -60, 120, 0, 0xf4f7fb).setOrigin(0.5, 1);
-    this.add.rectangle(WIDTH / 2, GROUND_Y + 35, WIDTH, 70, 0x6fae5b);
-    for (let i = 0; i < 3; i++) {
-      this.add.ellipse(250 + i * 220, 70 + (i % 2) * 25, 140, 34, 0xffffff, 0.55);
+  /** A paper layer: the shape plus a darker copy a few pixels lower, like cut card on card. */
+  private paper(points: number[], colour: number, depth = 4): void {
+    const g = this.add.graphics();
+    g.fillStyle(COLORS.ink, 0.16);
+    g.fillPoints(this.toPoints(points, depth), true);
+    g.fillStyle(colour, 1);
+    g.fillPoints(this.toPoints(points, 0), true);
+  }
+
+  private toPoints(flat: number[], dy: number): Phaser.Math.Vector2[] {
+    const out: Phaser.Math.Vector2[] = [];
+    for (let i = 0; i < flat.length; i += 2) out.push(new Phaser.Math.Vector2(flat[i], flat[i + 1] + dy));
+    return out;
+  }
+
+  private drawLandscape(): void {
+    const sky = this.add.graphics();
+    sky.fillGradientStyle(COLORS.skyTop, COLORS.skyTop, COLORS.skyBottom, COLORS.skyBottom, 1);
+    sky.fillRect(0, 0, WIDTH, HEIGHT);
+    this.add.circle(118, 72, 30, COLORS.sun);
+
+    // Far ridge
+    this.paper([0, 220, 70, 170, 140, 196, 230, 140, 330, 190, 420, 150, 520, 186, 610, 130, 700, 176, 800, 150, 800, 300, 0, 300], COLORS.ridgeFar, 3);
+    // Triglav: three peaks, the middle one highest, with snow
+    const triglav = [380, 300, 440, 196, 476, 168, 505, 150, 528, 92, 552, 140, 580, 120, 620, 178, 690, 230, 740, 300];
+    this.paper(triglav, COLORS.mountain, 5);
+    this.paper([505, 150, 528, 92, 552, 140, 540, 134, 530, 146, 518, 136], COLORS.snow, 0);
+    this.paper([476, 168, 490, 160, 505, 150, 498, 166, 487, 162], COLORS.snow, 0);
+    this.paper([580, 120, 600, 148, 590, 144, 580, 152, 570, 140], COLORS.snow, 0);
+    // Rolling hills and meadow
+    this.paper([0, 250, 120, 226, 260, 246, 400, 222, 560, 248, 700, 230, 800, 244, 800, 320, 0, 320], COLORS.hill, 4);
+    this.drawKozolec(650, 236);
+    this.paper([0, GROUND_Y - 6, 200, GROUND_Y - 14, 420, GROUND_Y - 4, 640, GROUND_Y - 12, 800, GROUND_Y - 6, 800, HEIGHT, 0, HEIGHT], COLORS.meadow, 4);
+    for (let i = 0; i < 9; i++) {
+      const x = 40 + i * 92 + (i % 3) * 11;
+      const y = GROUND_Y + 22 + (i % 2) * 24;
+      this.add.circle(x, y, 3, COLORS.snow);
+      this.add.circle(x, y, 1.4, COLORS.honey);
+    }
+    // Pozabnik's fog rolling in from the right
+    for (let i = 0; i < 5; i++) {
+      const fog = this.add.ellipse(560 + i * 70, GROUND_Y - 4 - (i % 2) * 10, 150, 38, COLORS.fog, 0.32);
+      if (!reduceMotion()) this.tweens.add({ targets: fog, x: fog.x - 18, yoyo: true, repeat: -1, duration: 2600 + i * 400, ease: 'Sine.easeInOut' });
     }
   }
 
-  private drawHero(): void {
-    const hero = this.add.container(HERO_X, GROUND_Y);
-    hero.add(this.add.triangle(0, -30, -26, 30, 0, -40, 26, 30, 0x3b6fd1));
-    hero.add(this.add.circle(0, -78, 18, 0xf6d2b0));
-    hero.add(this.add.triangle(0, -100, -22, 8, 0, -38, 22, 8, 0x27408b));
-    hero.add(this.add.star(0, -136, 5, 4, 8, 0xffd84d));
-    hero.add(this.add.rectangle(30, -45, 4, 70, 0x8b5a2b));
-    hero.add(this.add.circle(30, -82, 6, 0xffd84d));
-    this.tweens.add({ targets: hero, y: GROUND_Y - 4, yoyo: true, repeat: -1, duration: 900, ease: 'Sine.easeInOut' });
-
-    const rogec = this.add.container(HERO_X - 75, GROUND_Y);
-    rogec.add(this.add.ellipse(0, -18, 40, 26, 0xd9c3a1));
-    rogec.add(this.add.circle(18, -34, 10, 0xd9c3a1));
-    rogec.add(this.add.triangle(16, -48, -4, 6, 2, -10, 6, 6, 0x7a5c3e));
-    rogec.add(this.add.triangle(24, -48, -4, 6, 2, -10, 6, 6, 0x7a5c3e));
-    rogec.add(this.add.circle(22, -36, 2, 0x222222));
+  /** A small Slovene hayrack on the hill: the village of chapter 1. */
+  private drawKozolec(x: number, y: number): void {
+    const g = this.add.graphics();
+    g.fillStyle(COLORS.wood, 1);
+    g.fillRect(x, y - 30, 4, 30);
+    g.fillRect(x + 22, y - 30, 4, 30);
+    g.fillRect(x + 44, y - 30, 4, 30);
+    for (let i = 0; i < 4; i++) g.fillRect(x, y - 27 + i * 7, 48, 2);
+    g.fillStyle(COLORS.roof, 1);
+    g.fillTriangle(x - 6, y - 30, x + 24, y - 44, x + 54, y - 30);
   }
 
-  private makeMonster(colour: number): Phaser.GameObjects.Container {
-    const m = this.add.container(MONSTER_START_X, GROUND_Y);
-    m.add(this.add.ellipse(0, -38, 82, 76, colour, 0.95));
-    m.add(this.add.ellipse(-26, -20, 30, 22, colour, 0.8));
-    m.add(this.add.ellipse(26, -18, 34, 24, colour, 0.8));
-    m.add(this.add.circle(-14, -48, 10, 0xffffff));
-    m.add(this.add.circle(14, -48, 10, 0xffffff));
-    m.add(this.add.circle(-16, -46, 4, 0x222222));
-    m.add(this.add.circle(12, -46, 4, 0x222222));
-    m.add(this.add.arc(0, -28, 10, 20, 160, false, 0x553344));
+  private drawRogec(): void {
+    const x = HERO_X - 82;
+    const r = this.add.container(x, GROUND_Y);
+    const body = COLORS.ibex;
+    r.add(this.add.rectangle(-12, -10, 5, 18, COLORS.ibexDark));
+    r.add(this.add.rectangle(12, -10, 5, 18, COLORS.ibexDark));
+    r.add(this.add.ellipse(0, -24, 46, 28, body));
+    r.add(this.add.ellipse(26, -42, 24, 20, body));
+    const horns = this.add.graphics();
+    horns.lineStyle(4, COLORS.ibexDark, 1);
+    horns.beginPath();
+    horns.arc(14, -54, 12, Math.PI * 1.05, Math.PI * 1.6);
+    horns.strokePath();
+    horns.beginPath();
+    horns.arc(22, -56, 12, Math.PI * 1.05, Math.PI * 1.6);
+    horns.strokePath();
+    r.add(horns);
+    r.add(this.add.circle(31, -44, 2.5, COLORS.ink));
+    r.add(this.add.ellipse(-22, -30, 8, 6, COLORS.snow));
+    if (!reduceMotion()) this.tweens.add({ targets: r, y: GROUND_Y - 3, yoyo: true, repeat: -1, duration: 700, ease: 'Sine.easeInOut', delay: 300 });
+  }
+
+  private drawHero(): void {
+    const h = this.add.container(HERO_X, GROUND_Y);
+    // Cape
+    const cape = this.add.graphics();
+    cape.fillStyle(COLORS.ink, 0.16);
+    cape.fillTriangle(-30, 4, 0, -76, 30, 4);
+    cape.fillStyle(COLORS.cape, 1);
+    cape.fillTriangle(-30, 0, 0, -80, 30, 0);
+    cape.fillStyle(COLORS.honey, 1);
+    cape.fillRect(-30, -6, 60, 6);
+    h.add(cape);
+    // Head and hat with edelweiss
+    h.add(this.add.circle(0, -92, 17, COLORS.skin));
+    h.add(this.add.circle(-6, -92, 2.2, COLORS.ink));
+    h.add(this.add.circle(6, -92, 2.2, COLORS.ink));
+    h.add(this.add.ellipse(0, -104, 54, 10, COLORS.hat));
+    h.add(this.add.ellipse(0, -114, 30, 22, COLORS.hat));
+    h.add(this.add.rectangle(0, -108, 30, 4, COLORS.honey));
+    h.add(this.add.star(12, -116, 6, 2, 6, COLORS.snow));
+    // Staff with a glowing number orb
+    h.add(this.add.rectangle(34, -52, 5, 104, COLORS.wood));
+    this.orb = this.add.circle(34, -112, 9, COLORS.honey);
+    h.add(this.add.circle(34, -112, 16, COLORS.honey, 0.25));
+    h.add(this.orb);
+    if (!reduceMotion()) this.tweens.add({ targets: h, y: GROUND_Y - 3, yoyo: true, repeat: -1, duration: 1100, ease: 'Sine.easeInOut' });
+  }
+
+  private makeFogImp(shade: number): Phaser.GameObjects.Container {
+    const m = this.add.container(MONSTER_START_X, GROUND_Y - 6);
+    // Trailing wisps
+    m.add(this.add.circle(52, -22, 12, shade, 0.5));
+    m.add(this.add.circle(70, -30, 8, shade, 0.35));
+    m.add(this.add.circle(84, -24, 5, shade, 0.25));
+    // Cloud body: overlapping puffs with a darker underside
+    m.add(this.add.ellipse(0, -14, 86, 30, COLORS.ink, 0.12));
+    for (const [x, y, r] of [
+      [-26, -30, 22],
+      [24, -30, 22],
+      [0, -50, 30],
+      [-12, -24, 22],
+      [14, -22, 22],
+    ]) {
+      m.add(this.add.circle(x, y, r, shade));
+    }
+    m.add(this.add.circle(-8, -62, 10, 0xffffff, 0.35));
+    // Face
+    m.add(this.add.ellipse(-12, -42, 16, 19, 0xffffff));
+    m.add(this.add.ellipse(12, -42, 16, 19, 0xffffff));
+    m.add(this.add.circle(-14, -40, 5, COLORS.ink));
+    m.add(this.add.circle(10, -40, 5, COLORS.ink));
+    m.add(this.add.circle(-12, -42, 1.6, 0xffffff));
+    m.add(this.add.circle(12, -42, 1.6, 0xffffff));
+    m.add(this.add.ellipse(0, -24, 10, 8, COLORS.ink, 0.75));
+    m.add(this.add.circle(-24, -30, 4, COLORS.berry, 0.35));
+    m.add(this.add.circle(24, -30, 4, COLORS.berry, 0.35));
     return m;
   }
 
-  private burst(x: number, y: number, colour: number): void {
-    for (let i = 0; i < 10; i++) {
-      const angle = (Math.PI * 2 * i) / 10;
-      const dot = this.add.circle(x, y, 5, colour);
+  /** Fog breaks into puffs that drift up, with a few honey sparks. */
+  private dissolve(target: Phaser.GameObjects.Container): void {
+    const cx = target.x;
+    const cy = target.y - 40;
+    for (let i = 0; i < 12; i++) {
+      const angle = (Math.PI * 2 * i) / 12;
+      const isSpark = i % 3 === 0;
+      const dot = this.add.circle(cx, cy, isSpark ? 5 : 11, isSpark ? COLORS.honey : COLORS.fog, isSpark ? 1 : 0.7);
       this.tweens.add({
         targets: dot,
-        x: x + Math.cos(angle) * 60,
-        y: y + Math.sin(angle) * 60,
+        x: cx + Math.cos(angle) * (isSpark ? 70 : 50),
+        y: cy + Math.sin(angle) * (isSpark ? 70 : 40) - 20,
         alpha: 0,
-        duration: 450,
+        scale: isSpark ? 0.4 : 1.6,
+        duration: 520,
+        ease: 'Quad.easeOut',
         onComplete: () => dot.destroy(),
       });
     }

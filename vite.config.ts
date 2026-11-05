@@ -3,8 +3,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 const REPO_BASE = '/varuh-stevil/';
 
-export default defineConfig(({ command }) => {
-  const base = command === 'build' ? REPO_BASE : '/';
+export default defineConfig(({ command, isPreview }) => {
+  // The dev server runs at /; the build and `vite preview` use the GitHub Pages path.
+  const base = command === 'build' || isPreview ? REPO_BASE : '/';
   return {
     base,
     build: {

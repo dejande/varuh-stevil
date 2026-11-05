@@ -9,14 +9,18 @@
     "build": "npm run check:i18n && tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "test:e2e": "npm run build && playwright test",
+    "test:all": "npm test && npm run test:e2e"
   },
   "dependencies": {
+    "@fontsource-variable/baloo-2": "^5.3.0",
     "@formatjs/icu-messageformat-parser": "^3.5.22",
     "intl-messageformat": "^12.1.4",
     "phaser": "^3.90.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.6",
     "typescript": "^7.0.2",
     "vite": "^8.3.6",

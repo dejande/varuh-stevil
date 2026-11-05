@@ -18,25 +18,35 @@ Milestone 1 (battle core) is done and committed locally:
 - `sl.json`/`en.json` with ICU plurals, build-time i18n check
 - GitHub Pages workflow (no remote yet; Dejan has not approved creating one or pushing)
 
-Placeholder art is simple Phaser shapes. Dejan finds the graphics and colours ugly (2026-11-05); a design rewrite is the next task.
+Design pass done the same day ("Alpine paper-cut", see README "Design"): Dejan found the first placeholder look ugly. Art is still drawn from shapes; real illustrations come in milestone 5. Keep the rules: honey only for the one main action per screen, selected options in ink, no text glyphs for icons.
+
+Battle header has a segmented level progress bar. Story levels don't exist yet, so there is no level/stage number; add "Poglavje 1 · Stopnja 3"-style numbering in milestone 3.
 
 ## Next
 
-1. **Visual design pass** on the placeholder look (colours, typography, battle scene shapes) before milestone 2.
+1. **Intro story:** Dejan asked where the intro story is (2026-11-05). It is milestone 3; the approved prologue could be shown earlier as an intro screen if he wants it.
 2. **Create the GitHub repo and push**, only after Dejan says so. Then set Pages to "GitHub Actions".
 3. **Milestone 2:** profiles (up to 6), parent gate, settings per child, the multiple-choice input mode (distractor rules in spec §3), IndexedDB storage.
 4. **Milestone 3:** chapter map, 30 levels, bosses, frozen story text, stars and unlocks. Draft the per-level panel text (5 × 5, SL + EN) first; Dejan approves it before it is frozen.
 5. **Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.
 6. **Milestone 5:** Android APK via Capacitor on GitHub Releases, art and sound pass.
 
-Open from spec §11, not yet done: the end-to-end test that plays one level in each language. Playwright was not added in milestone 1.
+## Tests: run before every commit
+
+Dejan's rule (2026-11-05): don't break what already works. Run `npm run test:all` (unit + end-to-end) before every commit, and add a test with every new feature: rules in `tests/`, user-visible flows in `e2e/`.
+
+- From a Claude sandbox, Chrome cannot start (`Operation not permitted`), so run the e2e suite in the Terminal panel (`run_in_terminal`), not Bash. Unit tests run fine in Bash.
+- The e2e server runs on `127.0.0.1:4317` with `reuseExistingServer: false`, because a stale `vite preview` keeps serving an old asset list.
+- E2E helpers (`e2e/helpers.ts`) open the settings panel, pick options and solve problems from the screen text. Keep class names `.problem`, `.feedback`, `.result`, `.keypad [data-key]`, `.hearts .heart.full`, `.progress` stable, or update the helpers in the same change.
 
 ## Commands
 
 ```bash
 npm run dev     # http://localhost:5173
-npm test
-npm run build   # check:i18n + tsc + vite build
+npm test           # unit tests
+npm run test:e2e   # build + Playwright (run in the Terminal panel)
+npm run test:all   # both
+npm run build      # check:i18n + tsc + vite build
 ```
 
 `npm install` from a Claude sandbox needs `registry.npmjs.org` in `allowed_domains`.

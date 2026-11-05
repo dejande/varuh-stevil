@@ -2,10 +2,13 @@ import { registerSW } from 'virtual:pwa-register';
 import { DEFAULT_PROFILE } from './core/profile';
 import { ALL_OPS, ALL_RANGES, type Lang, type Op, type Profile, type Range, type Speed } from './core/types';
 import { Battle, type BattleOutcome } from './game/battle';
+import { HOME_SCENE_SVG } from './homeScene';
 import { translate, type MessageKey, type Values } from './i18n/i18n';
+import '@fontsource-variable/baloo-2';
 import './style.css';
 
 registerSW({ immediate: true });
+
 
 const SPEEDS: Speed[] = ['relaxed', 'normal', 'fast'];
 const LANGS: Lang[] = ['sl', 'en'];
@@ -13,6 +16,7 @@ const LANGS: Lang[] = ['sl', 'en'];
 const app = document.querySelector<HTMLElement>('#app')!;
 const profile: Profile = structuredClone(DEFAULT_PROFILE);
 let battle: Battle | null = null;
+let settingsOpen = false;
 
 function t(key: MessageKey, values: Values = {}): string {
   return translate(profile.lang, key, { gender: profile.gender, hero: profile.heroName, ...values });
@@ -34,14 +38,20 @@ function renderHome(): void {
     `<label class="chip"><input type="${type}" name="${name}" value="${value}" ${checked ? 'checked' : ''}><span>${label}</span></label>`;
 
   app.innerHTML = `
-    <section class="home">
-      <h1>${t('app.title')}</h1>
-      <p class="subtitle">${t('app.subtitle')}</p>
+    <form class="home">
+      <fieldset class="lang-switch" aria-label="${t('settings.language')}">
+        ${LANGS.map((l) => chip('lang', l, profile.lang === l, t(`lang.${l}` as MessageKey), 'radio')).join('')}
+      </fieldset>
+      <div class="home-scene">
+        ${HOME_SCENE_SVG}
+        <h1>${t('app.title')}</h1>
+      </div>
       <p class="greeting">${escapeHtml(t('home.greeting'))}</p>
-      <form class="settings">
-        <fieldset><legend>${t('settings.language')}</legend>
-          ${LANGS.map((l) => chip('lang', l, profile.lang === l, t(`lang.${l}` as MessageKey), 'radio')).join('')}
-        </fieldset>
+      <p class="subtitle">${t('app.subtitle')}</p>
+      <button type="submit" class="btn-primary btn-big btn-start">${t('home.play')}</button>
+      <p class="error" hidden>${t('settings.needOp')}</p>
+      <details class="settings">
+        <summary>${t('settings.title')}</summary>
         <fieldset><legend>${t('settings.ops')}</legend>
           ${ALL_OPS.map((op) => chip('ops', op, s.ops.includes(op), t(`op.${op}` as MessageKey), 'checkbox')).join('')}
         </fieldset>
@@ -51,15 +61,16 @@ function renderHome(): void {
         <fieldset><legend>${t('settings.speed')}</legend>
           ${SPEEDS.map((sp) => chip('speed', sp, profile.speed === sp, t(`speed.${sp}` as MessageKey), 'radio')).join('')}
         </fieldset>
-        <fieldset><legend>${t('home.practice')}</legend>
+        <fieldset><legend>${t('settings.tasks')}</legend>
           ${chip('missing', 'on', s.missingNumber, t('settings.missing'), 'checkbox')}
         </fieldset>
-        <p class="error" hidden>${t('settings.needOp')}</p>
-        <button type="submit" class="btn-primary btn-big">${t('home.play')} ⚔</button>
-      </form>
-    </section>`;
+      </details>
+    </form>`;
 
   const form = app.querySelector('form')!;
+  const details = form.querySelector('details')!;
+  details.open = settingsOpen;
+  details.addEventListener('toggle', () => (settingsOpen = details.open));
   form.addEventListener('change', (e) => {
     const input = e.target as HTMLInputElement;
     if (input.name === 'lang') {
@@ -106,7 +117,9 @@ function goHome(): void {
 function showResult(outcome: BattleOutcome): void {
   battle?.destroy();
   battle = null;
-  const stars = [1, 2, 3].map((i) => `<span class="${i <= outcome.stars ? 'on' : 'off'}">★</span>`).join('');
+  const stars = [1, 2, 3]
+    .map((i) => `<svg class="star ${i <= outcome.stars ? 'on' : 'off'}" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.8 5.7 21.4l1.5-7.1L1.8 9.4 9 8.6z"/></svg>`)
+    .join('');
   app.innerHTML = `
     <section class="result ${outcome.won ? 'won' : 'lost'}">
       <h2>${outcome.won ? t('result.won') : t('result.lost')}</h2>
