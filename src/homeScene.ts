@@ -123,7 +123,7 @@ const ROGEC = `
     <rect x="-14" y="-18" width="5" height="18" fill="#6b4a2b"/><rect x="10" y="-18" width="5" height="18" fill="#6b4a2b"/>
     <ellipse cx="0" cy="-24" rx="23" ry="14" fill="#d8b98c"/>
     <ellipse cx="26" cy="-42" rx="12" ry="10" fill="#d8b98c"/>
-    <path d="M18 -50c-6-6-6-14 0-18M25 -51c-5-7-4-14 2-18" fill="none" stroke="#6b4a2b" stroke-width="4" stroke-linecap="round"/>
+    <path d="M20 -50Q22 -66 9 -67M27 -50Q29 -66 16 -67" fill="none" stroke="#6b4a2b" stroke-width="4" stroke-linecap="round"/>
     <circle cx="31" cy="-44" r="2.5" fill="#1f2d5a"/>
     <ellipse cx="-22" cy="-30" rx="4" ry="3" fill="#fff"/>
   </g>`;

@@ -232,14 +232,17 @@ export class BattleScene extends Phaser.Scene {
     r.add(this.add.rectangle(12, -10, 5, 18, COLORS.ibexDark));
     r.add(this.add.ellipse(0, -24, 46, 28, body));
     r.add(this.add.ellipse(26, -42, 24, 20, body));
+    // Ibex horns: rooted on top of the head, curving back over the neck.
     const horns = this.add.graphics();
     horns.lineStyle(4, COLORS.ibexDark, 1);
-    horns.beginPath();
-    horns.arc(14, -54, 12, Math.PI * 1.05, Math.PI * 1.6);
-    horns.strokePath();
-    horns.beginPath();
-    horns.arc(22, -56, 12, Math.PI * 1.05, Math.PI * 1.6);
-    horns.strokePath();
+    for (const x0 of [20, 27]) {
+      const curve = new Phaser.Curves.QuadraticBezier(
+        new Phaser.Math.Vector2(x0, -50),
+        new Phaser.Math.Vector2(x0 + 2, -66),
+        new Phaser.Math.Vector2(x0 - 11, -67),
+      );
+      horns.strokePoints(curve.getPoints(16));
+    }
     r.add(horns);
     r.add(this.add.circle(31, -44, 2.5, COLORS.ink));
     r.add(this.add.ellipse(-22, -30, 8, 6, COLORS.snow));

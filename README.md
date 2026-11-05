@@ -117,6 +117,10 @@ The GitHub repository is not created yet. To publish:
 
 Newest first. Every change to the repo adds a line here.
 
+### 2026-11-05: Rogec's horns
+
+- Fix: Rogec's horns floated beside his head in the battle and were shifted in the home and story pictures. They now grow from the top of his head and curve back.
+
 ### 2026-11-05: Prologue, fair time after a mistake
 
 - Prologue from the approved spec text, in four illustrated panels (the counting valley, Pozabnik's fog taking the numbers, the puzzled shepherd and miller, Rogec asking for help). Shows on the first visit; **Zgodba / Story** replays it; **Preskoči / Skip** leaves it.
