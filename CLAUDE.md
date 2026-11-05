@@ -2,6 +2,10 @@
 
 Math practice battle game for Dejan's three kids (ages 6–11). Original game in the MathHero genre: own name, story and art, never a copy of the reference app.
 
+## Public repo: privacy
+
+The repo and the site are public. Never write the children's real names, ages beyond "6–11", photos, or paths from Dejan's machine into any file, test, commit message or story text. Use neutral example names (Nika, Eva, Žan). The built-in milestone 1 profile is "Nika"; real names belong only in profiles stored on the device (milestone 2).
+
 ## Sources of truth
 
 - **Spec:** `docs/spec.md`. Read the relevant section before changing behaviour. The original draft outside this repo is no longer maintained.

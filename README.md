@@ -119,6 +119,7 @@ Newest first. Every change to the repo adds a line here.
 ### 2026-11-05: On GitHub
 
 - Pushed to `github.com/dejande/varuh-stevil`; the site goes to https://dejande.github.io/varuh-stevil/.
+- The repo is public, so the children's names were taken out of the docs, tests and the built-in profile (now "Nika"), including the earlier history.
 
 ### 2026-11-05: Publishing texts
 
