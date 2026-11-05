@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { MonsterApproach } from '../core/approach';
 import { COLORS, FONT_FAMILY } from '../theme';
 
 export const WIDTH = 800;
@@ -7,12 +8,6 @@ const GROUND_Y = 292;
 const HERO_X = 150;
 const MONSTER_START_X = 730;
 const MONSTER_HIT_X = 235;
-/** Relaxed: the monster stops here (0 = start, 1 = at the hero); each wrong answer moves it one step on. */
-const RELAXED_STOP = 0.55;
-const RELAXED_STEP = 0.15;
-/** Timed speeds: a wrong answer pushes the monster this far forward. */
-const TIMED_STEP = 0.25;
-const WALK_IN_SECONDS = 2.5;
 
 /** Chapter 1 fog imps come in a few fog shades. */
 const FOG_SHADES = [COLORS.fog, 0xa9b7cf, 0xc4b4cf, 0xb3c4c9];
@@ -32,10 +27,7 @@ export class BattleScene extends Phaser.Scene {
 
   private monster?: Phaser.GameObjects.Container;
   private orb?: Phaser.GameObjects.Arc;
-  private progress = 0;
-  private limit = 1;
-  private speedPerSec = 0;
-  private relaxed = false;
+  private approach = new MonsterApproach(null);
   private paused = false;
   private shadeIndex = 0;
 
@@ -53,15 +45,7 @@ export class BattleScene extends Phaser.Scene {
 
   spawnMonster(cfg: MonsterConfig): void {
     this.monster?.destroy();
-    this.relaxed = cfg.seconds === null;
-    this.progress = 0;
-    if (this.relaxed) {
-      this.limit = RELAXED_STOP;
-      this.speedPerSec = RELAXED_STOP / WALK_IN_SECONDS;
-    } else {
-      this.limit = 1;
-      this.speedPerSec = 1 / (cfg.seconds as number);
-    }
+    this.approach = new MonsterApproach(cfg.seconds);
     this.monster = this.makeFogImp(FOG_SHADES[this.shadeIndex++ % FOG_SHADES.length]);
     this.monster.setAlpha(0).setScale(0.6);
     this.tweens.add({ targets: this.monster, alpha: 1, scale: 1, duration: 350, ease: 'Back.easeOut' });
@@ -76,16 +60,15 @@ export class BattleScene extends Phaser.Scene {
   /** Wrong answer: the monster steps closer. Returns true when that step reaches the hero. */
   stepCloser(): boolean {
     if (!this.monster) return false;
-    if (this.relaxed) {
-      // Relaxed counts wrong answers, not time: each one moves the stop point a step on, 3 reach the hero.
-      this.limit = Math.min(1, this.limit + RELAXED_STEP);
-      this.progress = this.limit;
-    } else {
-      this.progress = Math.min(1, this.progress + TIMED_STEP);
-    }
-    this.tweens.add({ targets: this.monster, x: this.xFor(this.progress), duration: 300, ease: 'Quad.easeOut' });
+    const reached = this.approach.stepCloser();
+    this.tweens.add({ targets: this.monster, x: this.xFor(this.approach.progress), duration: 300, ease: 'Quad.easeOut' });
     if (!reduceMotion()) this.cameras.main.shake(140, 0.003);
-    return this.progress >= 0.999;
+    return reached;
+  }
+
+  /** The same monster gets a new problem after a mistake: full target time for the rest of the way. */
+  newProblem(): void {
+    this.approach.newProblem();
   }
 
   /** Correct answer: the answer flies from the staff as a golden number and dissolves the fog. */
@@ -166,10 +149,10 @@ export class BattleScene extends Phaser.Scene {
     if (this.orb) this.orb.setScale(1 + Math.sin(time / 260) * 0.12);
     if (!this.monster) return;
     this.monster.y = GROUND_Y - 6 + Math.sin(time / 300) * 4;
-    if (this.paused || this.progress >= this.limit) return;
-    this.progress = Math.min(this.limit, this.progress + (this.speedPerSec * delta) / 1000);
+    if (this.paused) return;
+    const reached = this.approach.tick(delta / 1000);
     this.placeMonster();
-    if (this.progress >= 1) {
+    if (reached) {
       this.paused = true;
       this.onReachHero();
     }
@@ -180,7 +163,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private placeMonster(): void {
-    if (this.monster) this.monster.x = this.xFor(this.progress);
+    if (this.monster) this.monster.x = this.xFor(this.approach.progress);
   }
 
   /** A paper layer: the shape plus a darker copy a few pixels lower, like cut card on card. */

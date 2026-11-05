@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { answer, currentProblem, fullHearts, playToEnd, solve, startPractice, waitForNext } from './helpers';
+import { answer, currentProblem, fullHearts, openApp, playToEnd, solve, startPractice, waitForNext } from './helpers';
 
 test.describe('home screen', () => {
   test('switches language', async ({ page }) => {
-    await page.goto('./');
+    await openApp(page);
     await expect(page.locator('h1')).toHaveText('Varuh števil');
     await expect(page).toHaveTitle('Varuh števil');
     await page.locator('input[name=lang][value=en]').check({ force: true });
@@ -13,7 +13,7 @@ test.describe('home screen', () => {
   });
 
   test('needs at least one operation', async ({ page }) => {
-    await page.goto('./');
+    await openApp(page);
     await page.locator('details.settings summary').click();
     for (const op of ['add', 'sub', 'mul', 'div']) await page.locator(`input[name=ops][value=${op}]`).uncheck({ force: true });
     await page.locator('form button[type=submit]').click();
@@ -99,6 +99,22 @@ test('normal speed: a monster that reaches the hero costs a heart and shows the 
   await expect(page.locator('.feedback')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('.fb-main')).toContainText(`The monster reached you. The correct answer is ${solve(p)}.`);
   expect(await fullHearts(page)).toBe(2);
+});
+
+test('normal speed: after a mistake the next problem gets the full time again', async ({ page }) => {
+  test.slow();
+  await startPractice(page, { lang: 'en', ops: ['add'], range: 10, speed: 'normal', missing: false });
+  // Let the monster get halfway (12 s target time), then answer wrong.
+  await page.waitForTimeout(6000);
+  const p = await currentProblem(page);
+  await answer(page, solve(p) === 0 ? 1 : 0);
+  expect(await waitForNext(page)).toBe('feedback');
+  await page.locator('.feedback [data-action=continue]').click();
+  expect(await waitForNext(page)).toBe('problem');
+  // Before the fix the monster reached the hero about 3 s later.
+  await page.waitForTimeout(9000);
+  await expect(page.locator('.feedback')).toBeHidden();
+  expect(await fullHearts(page)).toBe(3);
 });
 
 test('keyboard input works', async ({ page }) => {

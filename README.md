@@ -28,12 +28,13 @@ npm run preview    # serve dist/ at http://localhost:4173/varuh-stevil/
 | `npm test` | All unit tests in `tests/` |
 | `npm run test:e2e` | Builds, serves `dist/` at the Pages path and plays the game in Chrome on a desktop and a phone viewport (`e2e/`) |
 | `npm run test:all` | Unit tests, then end-to-end tests |
-| `npm run check:i18n` | Fails when `sl.json` and `en.json` differ in keys or placeholders, have invalid ICU syntax, or a Slovene plural lacks `one`/`two`/`few`/`other` |
+| `npm run check:i18n` | Fails when `sl.json` and `en.json` differ in keys or placeholders, have invalid ICU syntax, or a Slovene plural lacks `one`/`two`/`few`/`other`. Also checks the story files: same panels in both languages, same placeholders, `{hero}` only at the start of a sentence or quote |
 | `npm run build` | `check:i18n`, then `tsc --noEmit`, then `vite build` with base `/varuh-stevil/` |
 | `npm run icons` | Regenerates the placeholder PWA icons in `public/` |
 
 ## How to play (milestone 1)
 
+0. On the first visit the **prologue** tells the story in four short panels (Pozabnik's fog took the numbers, Rogec asks the hero for help). **Preskoči / Skip** jumps to the home screen; **Zgodba / Story** on the home screen replays it.
 1. On the home screen pick the language (top right). **Nastavitve vadbe / Practice settings** below the Start button opens the operations, number range, monster speed and task types (plain, or missing number in either position: `8 + ? = 13`, `? + 5 = 13`). Settings are in memory only for now; profiles and storage come in milestone 2.
 2. Press **Začni / Start**. A fog imp drifts toward the hero with a problem. The bar at the top shows how far into the level you are, one segment per monster.
 3. Type the answer on the keypad (or the keyboard: digits, Backspace, Enter) and confirm with ✓.
@@ -42,7 +43,7 @@ npm run preview    # serve dist/ at http://localhost:4173/varuh-stevil/
    - If the monster reaches the hero, the hero loses a heart. With 0 of 3 hearts the level ends with an encouraging message.
 4. After 10 monsters (plus any retries) the level ends with 1–3 stars.
 
-Monster speed: **Relaxed** stops at a safe distance and only wrong answers move it (3 wrong answers on one monster cost a heart). **Normal** reaches the hero in 12 s (0–10, 0–20), 15 s (0–100) or 20 s (0–1000). **Fast** takes 70% of that. A wrong answer in Normal/Fast pushes the monster a quarter of the way forward.
+Monster speed: **Relaxed** stops at a safe distance and only wrong answers move it (3 wrong answers on one monster cost a heart). **Normal** reaches the hero in 12 s (0–10, 0–20), 15 s (0–100) or 20 s (0–1000). **Fast** takes 70% of that. A wrong answer in Normal/Fast pushes the monster a quarter of the way forward; the next problem again gets the full target time for the distance that is left.
 
 ## Testing
 
@@ -70,11 +71,13 @@ src/core/                 game rules, no rendering (unit tested)
   format.ts               SL (· :) and EN (× ÷) notation
   speed.ts                target time per range and speed
   profile.ts              the one hard-coded profile of milestone 1
+  approach.ts             how a monster approaches the hero (speeds, steps, time per problem)
 src/i18n/                 sl.json, en.json (ICU MessageFormat), translate()
+src/story/                story.sl.json, story.en.json (frozen story text), storyPanels()
 src/game/BattleScene.ts   Phaser scene: hero, monster, spell (placeholder shapes)
 src/game/battle.ts        wires LevelSession + scene + DOM keypad and feedback
 src/main.ts               home, battle and result screens (plain DOM)
-src/homeScene.ts          home screen illustration (inline SVG)
+src/homeScene.ts          home and prologue illustrations (inline SVG, sceneSvg())
 src/theme.ts              palette and font shared with Phaser
 e2e/                      Playwright end-to-end tests and helpers
 scripts/check-i18n.mjs    build-time translation check
@@ -91,6 +94,10 @@ tests/                    Vitest unit tests
 - At 0–20 at least 40% of + and − cross 10; at 0–100 and 0–1000 at least 40% need a carry or borrow.
 - The same fact never appears twice in a row, also after a retry is inserted.
 - Slovene plurals use the dual (1 zvezdica, 2 zvezdici, 3 zvezdice, 5 zvezdic); verb forms follow the hero's gender.
+
+## Story text
+
+The story is frozen (spec §8): it lives in `src/story/story.sl.json` and `story.en.json` and changes only when Dejan edits it on purpose. Each entry is a list of short panels (1–3 sentences). `{hero}` is the hero name and may stand only at the start of a sentence or a quote, because Slovene names decline; anywhere else the build fails. Slovene gender forms use `{gender, select, girl {…} other {…}}`. A unit test checks that the prologue still matches `docs/spec.md` word for word.
 
 ## Translations
 
@@ -109,6 +116,13 @@ The GitHub repository is not created yet. To publish:
 ## Changelog
 
 Newest first. Every change to the repo adds a line here.
+
+### 2026-11-05: Prologue, fair time after a mistake
+
+- Prologue from the approved spec text, in four illustrated panels (the counting valley, Pozabnik's fog taking the numbers, the puzzled shepherd and miller, Rogec asking for help). Shows on the first visit; **Zgodba / Story** replays it; **Preskoči / Skip** leaves it.
+- Story files `story.sl.json` / `story.en.json`; the build check now covers them, including the `{hero}` position rule.
+- One-letter words (z, v, s, k…) stay on the same line as the next word in story text.
+- Fix: after a wrong answer in Normal/Fast the monster kept its old speed, so the next problem had only a few seconds left. Each new problem now gets the full target time for the remaining distance. Approach rules moved to `src/core/approach.ts` with unit tests; an end-to-end test replays the bug.
 
 ### 2026-11-05: Design pass, progress bar, end-to-end tests
 

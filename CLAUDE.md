@@ -20,12 +20,15 @@ Milestone 1 (battle core) is done and committed locally:
 
 Design pass done the same day ("Alpine paper-cut", see README "Design"): Dejan found the first placeholder look ugly. Art is still drawn from shapes; real illustrations come in milestone 5. Keep the rules: honey only for the one main action per screen, selected options in ink, no text glyphs for icons.
 
+The prologue (spec §8, approved text) is in: first-visit intro plus a Story button. The seen flag is in localStorage (`varuh-stevil.prologueSeen`) until profiles arrive in milestone 2. Chapter intros/outros and the 25 level panels come in milestone 3; the level panels need Dejan's approval before they are frozen.
+
+Monster approach rules live in `src/core/approach.ts`. After a mistake the same monster stays closer (that is the consequence), but the next problem gets the full target time for the remaining distance (bug Dejan reported 2026-11-05).
+
 Battle header has a segmented level progress bar. Story levels don't exist yet, so there is no level/stage number; add "Poglavje 1 · Stopnja 3"-style numbering in milestone 3.
 
 ## Next
 
-1. **Intro story:** Dejan asked where the intro story is (2026-11-05). It is milestone 3; the approved prologue could be shown earlier as an intro screen if he wants it.
-2. **Create the GitHub repo and push**, only after Dejan says so. Then set Pages to "GitHub Actions".
+1. **Create the GitHub repo and push**, only after Dejan says so. Then set Pages to "GitHub Actions".
 3. **Milestone 2:** profiles (up to 6), parent gate, settings per child, the multiple-choice input mode (distractor rules in spec §3), IndexedDB storage.
 4. **Milestone 3:** chapter map, 30 levels, bosses, frozen story text, stars and unlocks. Draft the per-level panel text (5 × 5, SL + EN) first; Dejan approves it before it is frozen.
 5. **Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.

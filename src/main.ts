@@ -2,13 +2,15 @@ import { registerSW } from 'virtual:pwa-register';
 import { DEFAULT_PROFILE } from './core/profile';
 import { ALL_OPS, ALL_RANGES, type Lang, type Op, type Profile, type Range, type Speed } from './core/types';
 import { Battle, type BattleOutcome } from './game/battle';
-import { HOME_SCENE_SVG } from './homeScene';
+import { HOME_SCENE_SVG, PROLOGUE_SCENES, sceneSvg } from './homeScene';
+import { keepShortWords, storyPanels } from './story/story';
 import { translate, type MessageKey, type Values } from './i18n/i18n';
 import '@fontsource-variable/baloo-2';
 import './style.css';
 
 registerSW({ immediate: true });
 
+const PROLOGUE_SEEN_KEY = 'varuh-stevil.prologueSeen';
 
 const SPEEDS: Speed[] = ['relaxed', 'normal', 'fast'];
 const LANGS: Lang[] = ['sl', 'en'];
@@ -17,6 +19,24 @@ const app = document.querySelector<HTMLElement>('#app')!;
 const profile: Profile = structuredClone(DEFAULT_PROFILE);
 let battle: Battle | null = null;
 let settingsOpen = false;
+let stopStoryKeys: (() => void) | null = null;
+
+/** Per-device convenience flag; the profile store of milestone 2 replaces it. */
+function prologueSeen(): boolean {
+  try {
+    return localStorage.getItem(PROLOGUE_SEEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markPrologueSeen(): void {
+  try {
+    localStorage.setItem(PROLOGUE_SEEN_KEY, '1');
+  } catch {
+    // Private mode or blocked storage: the prologue simply shows again next time.
+  }
+}
 
 function t(key: MessageKey, values: Values = {}): string {
   return translate(profile.lang, key, { gender: profile.gender, hero: profile.heroName, ...values });
@@ -49,6 +69,7 @@ function renderHome(): void {
       <p class="greeting">${escapeHtml(t('home.greeting'))}</p>
       <p class="subtitle">${t('app.subtitle')}</p>
       <button type="submit" class="btn-primary btn-big btn-start">${t('home.play')}</button>
+      <button type="button" class="btn-secondary btn-story" data-action="story">${t('home.story')}</button>
       <p class="error" hidden>${t('settings.needOp')}</p>
       <details class="settings">
         <summary>${t('settings.title')}</summary>
@@ -80,6 +101,7 @@ function renderHome(): void {
     }
     readSettings(form);
   });
+  form.querySelector('[data-action="story"]')!.addEventListener('click', () => renderPrologue());
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     readSettings(form);
@@ -100,6 +122,61 @@ function readSettings(form: HTMLFormElement): void {
   };
   profile.speed = data.get('speed') as Speed;
   (form.querySelector('.error') as HTMLElement).hidden = profile.settings.ops.length > 0;
+}
+
+function renderPrologue(): void {
+  applyLang();
+  const panels = storyPanels(profile.lang, 'prologue', profile.heroName, profile.gender);
+  let index = 0;
+
+  app.innerHTML = `
+    <section class="story" aria-roledescription="${t('home.story')}">
+      <div class="story-scene"></div>
+      <p class="story-text" aria-live="polite"></p>
+      <div class="story-dots" aria-hidden="true">${panels.map(() => '<span></span>').join('')}</div>
+      <div class="story-actions">
+        <button type="button" class="btn-small" data-action="skip">${t('story.skip')}</button>
+        <button type="button" class="btn-primary btn-big" data-action="next"></button>
+      </div>
+    </section>`;
+  const scene = app.querySelector<HTMLElement>('.story-scene')!;
+  const text = app.querySelector<HTMLElement>('.story-text')!;
+  const dots = [...app.querySelectorAll<HTMLElement>('.story-dots span')];
+  const next = app.querySelector<HTMLButtonElement>('[data-action="next"]')!;
+
+  const finish = () => {
+    stopStoryKeys?.();
+    markPrologueSeen();
+    renderHome();
+  };
+  const show = () => {
+    scene.innerHTML = sceneSvg(PROLOGUE_SCENES[index] ?? {});
+    text.textContent = keepShortWords(panels[index]);
+    dots.forEach((d, i) => d.classList.toggle('on', i <= index));
+    next.textContent = index === panels.length - 1 ? t('story.start') : t('story.next');
+    next.focus();
+  };
+  const advance = () => {
+    if (index < panels.length - 1) {
+      index++;
+      show();
+    } else {
+      finish();
+    }
+  };
+  next.addEventListener('click', advance);
+  app.querySelector('[data-action="skip"]')!.addEventListener('click', finish);
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowRight') advance();
+    else if (e.key === 'Escape') finish();
+  };
+  stopStoryKeys?.();
+  window.addEventListener('keydown', onKey);
+  stopStoryKeys = () => {
+    window.removeEventListener('keydown', onKey);
+    stopStoryKeys = null;
+  };
+  show();
 }
 
 async function startBattle(): Promise<void> {
@@ -135,4 +212,5 @@ function showResult(outcome: BattleOutcome): void {
   (app.querySelector('[data-action="again"]') as HTMLButtonElement).focus();
 }
 
-renderHome();
+if (prologueSeen()) renderHome();
+else renderPrologue();

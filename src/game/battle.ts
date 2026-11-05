@@ -247,6 +247,7 @@ export class Battle {
     if (this.monsterGone) {
       this.nextMonster();
     } else {
+      this.scene.newProblem();
       this.scene.setPaused(false);
       this.nextProblem();
     }

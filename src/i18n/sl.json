@@ -4,6 +4,7 @@
   "home.practice": "Vadba",
   "home.play": "Začni",
   "home.greeting": "Živijo, {hero}!",
+  "home.story": "Zgodba",
   "settings.title": "Nastavitve vadbe",
   "settings.language": "Jezik",
   "settings.ops": "Računske operacije",
@@ -54,5 +55,8 @@
   "result.stars": "{count, plural, one {# zvezdica} two {# zvezdici} few {# zvezdice} other {# zvezdic}}",
   "result.mistakes": "{count, plural, =0 {Brez napake!} one {# napaka} two {# napaki} few {# napake} other {# napak}}",
   "result.again": "Še enkrat",
-  "result.home": "Domov"
+  "result.home": "Domov",
+  "story.next": "Naprej",
+  "story.skip": "Preskoči",
+  "story.start": "Gremo!"
 }

@@ -28,8 +28,14 @@ export function solve(text: string): number {
   return apply[inverse[op]](+c, +b);
 }
 
-export async function startPractice(page: Page, s: Setup): Promise<void> {
+/** Opens the app. By default the prologue counts as seen, so the home screen comes up directly. */
+export async function openApp(page: Page, { prologueSeen = true } = {}): Promise<void> {
+  if (prologueSeen) await page.addInitScript(() => localStorage.setItem('varuh-stevil.prologueSeen', '1'));
   await page.goto('./');
+}
+
+export async function startPractice(page: Page, s: Setup): Promise<void> {
+  await openApp(page);
   await page.locator(`input[name=lang][value=${s.lang}]`).check({ force: true });
   await page.locator('details.settings summary').click();
   for (const op of ['add', 'sub', 'mul', 'div'] as const) {
