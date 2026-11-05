@@ -1,6 +1,6 @@
-# Level panels: draft for approval
+# Level panels and boss outros
 
-**Status:** draft, 2026-11-05. Not frozen. The game already shows this text (in `src/story/story.sl.json` and `story.en.json`) so the levels can be built and tested; it is not pushed to the live site until Dejan approves it. After approval it is frozen (spec §8), and changes come only from Dejan.
+**Status:** approved by Dejan on 2026-11-05 and frozen (spec §8). The text lives in `src/story/story.sl.json` and `story.en.json`; this file is the readable copy. Changes come only from Dejan.
 
 How to review: edit the lines directly in this file, or tell Claude which ones to change. Mark the whole file approved by changing the status line above to "approved".
 
@@ -72,7 +72,7 @@ Boss: Stari Hrast / the Old Oak. After the boss he shows the path to the mountai
 
 Boss: Pozabnik / the Forgetter. After the boss comes the frozen ending from the spec, then the epilogue.
 
-## After each boss (also a draft)
+## After each boss
 
 The spec fixes what happens after each boss but gives Slovene text only for chapter 1's quote. These panels put it into words in both languages; they need approval too. The epilogue is taken word for word from the spec.
 
@@ -86,7 +86,9 @@ The spec fixes what happens after each boss but gives Slovene text only for chap
 
 A "/" separates two panels.
 
-## Open points for Dejan
+## Open points (settled 2026-11-05: approved as written)
+
+Dejan approved the text as it is, so: no separate boss intros, Rogec's cold-water joke stays, the Slovene dual stays, the places stay invented.
 
 - **Boss intros:** the spec has text after each boss but none before it. Panel 5 of each chapter sets the boss up. Should each boss also get its own one-line intro (e.g. »Velikan Kozolec se zbudi in zarohni!«)?
 - **Rogec in the lake (2.4):** a small joke that he is afraid of cold water. Keep or drop?

@@ -133,7 +133,7 @@ Newest first. Every change to the repo adds a line here.
 
 - Chapter map with 5 places, 25 levels and 5 bosses; best stars per level saved per player; finishing a level unlocks the next, a boss needs 10 stars from its chapter, beating it opens the next place.
 - Each place has its own battlefield and monsters: fog imps in the village, water sprites at the lake, dripstone golems in the cave, wood goblins in the forest, fog crows on the summit. Bosses: Velikan Kozolec, Jezerski zmaj, Senčni netopir, Stari Hrast, Pozabnik (15 lives; a quick answer hits twice; they stagger back when hit and start over after reaching the hero). Ribica floats beside the hero from chapter 4.
-- Story text: a panel before every level, an outro after every boss, the epilogue at the end. Level panels and outros are the draft in `docs/story/level-panels-draft.md`, not yet approved; the epilogue is the frozen spec text.
+- Story text: a panel before every level, an outro after every boss, the epilogue at the end. Dejan approved the level panels and outros on 2026-11-05 (`docs/story/level-panels-draft.md`); all story text is now frozen.
 - Home: **Na pot!** opens the map, **Vadba** plays practice; the prologue replays from the map.
 - Results in the story offer Next, Play again and Map.
 - Tests: campaign rules and boss fights (unit), the map, unlocking, the boss star requirement, a full boss fight with its outro and the epilogue (end-to-end).

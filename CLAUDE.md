@@ -35,12 +35,12 @@ Battle header has a segmented level progress bar. Story levels don't exist yet, 
 ## Next
 
 1. **GitHub:** repo `git@github.com:dejande/varuh-stevil.git`, site https://dejande.github.io/varuh-stevil/. Pushing needs SSH keys, which the Claude sandbox can't read: push from the Terminal panel. Push only when Dejan asks.
-2. **Milestone 3 (built 2026-11-05, not pushed):** chapter map, 25 levels + 5 bosses, stars and unlocks, story panels, outros, epilogue.
-   - The game already uses the **draft** level panels and boss outros (`src/story/story.*.json`, mirrored in `docs/story/level-panels-draft.md`). **Do not push milestone 3 until Dejan approves that text** (and answers the open points at the bottom of the draft). Then mark the draft approved; from then on the story files change only on his request.
+2. **Milestone 3 (done and deployed 2026-11-05):** chapter map, 25 levels + 5 bosses, stars and unlocks, story panels, outros, epilogue.
+   - All story text is approved and frozen (`src/story/story.*.json`, readable copy in `docs/story/level-panels-draft.md`). Change it only when Dejan asks.
    - Rules: `src/core/campaign.ts`; boss fights are `LevelSession` with `bossHp`; art per chapter in `src/game/art.ts`; screens in `src/ui/map.ts` and `src/ui/story.ts`.
    - Deliberate spec deviation: Practice and replaying levels are open from the start (the spec's epilogue note says they unlock at the end). Replays are needed anyway, because a boss needs 10 stars.
    - Visual direction decided 2026-11-05: **keep the current "Alpine paper-cut" look.** The alternatives (watercolour, folk-painted panels, clay) stay in `docs/design/directions.html` for reference; don't restyle unless Dejan asks again. Build the chapter map in the current look.
-3. **Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.
+3. **Next: Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.
 4. **Milestone 5:** Android APK via Capacitor on GitHub Releases, art and sound pass.
 
 ## Tests: run before every commit
