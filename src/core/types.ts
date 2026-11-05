@@ -24,11 +24,28 @@ export interface PracticeSettings {
   missingNumber: boolean;
 }
 
+export type InputMode = 'keypad' | 'choices';
+export const ALL_SPEEDS: readonly Speed[] = ['relaxed', 'normal', 'fast'];
+export const ALL_LANGS: readonly Lang[] = ['sl', 'en'];
+export const ALL_INPUT_MODES: readonly InputMode[] = ['keypad', 'choices'];
+
+export interface ProfileProgress {
+  prologueSeen: boolean;
+}
+
 export interface Profile {
+  id: string;
+  /** The child's name as the parent types it; shown on the player picker. */
   name: string;
+  /** Shown in the story; defaults to the name, at most 12 characters. */
   heroName: string;
   gender: Gender;
+  /** Hero colour preset, see HERO_LOOKS. */
+  look: string;
   lang: Lang;
+  inputMode: InputMode;
   speed: Speed;
   settings: PracticeSettings;
+  progress: ProfileProgress;
+  createdAt: number;
 }

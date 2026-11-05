@@ -28,36 +28,88 @@ export function solve(text: string): number {
   return apply[inverse[op]](+c, +b);
 }
 
-/** Opens the app. By default the prologue counts as seen, so the home screen comes up directly. */
-export async function openApp(page: Page, { prologueSeen = true } = {}): Promise<void> {
-  if (prologueSeen) await page.addInitScript(() => localStorage.setItem('varuh-stevil.prologueSeen', '1'));
+export interface Player extends Partial<Setup> {
+  name: string;
+  heroName?: string;
+  gender?: 'girl' | 'boy';
+  look?: 'blue' | 'red' | 'green' | 'purple' | 'teal' | 'gold';
+  inputMode?: 'keypad' | 'choices';
+}
+
+/** Opens the app on a fresh device (each Playwright test gets empty storage). */
+export async function openApp(page: Page): Promise<void> {
   await page.goto('./');
 }
 
-export async function startPractice(page: Page, s: Setup): Promise<void> {
+async function setChecked(page: Page, selector: string, on: boolean): Promise<void> {
+  const box = page.locator(selector);
+  if (on) await box.check({ force: true });
+  else await box.uncheck({ force: true });
+}
+
+/** Fills the player editor (first run, add or edit) and saves it. */
+export async function fillPlayer(page: Page, p: Player): Promise<void> {
+  const form = page.locator('.settings-form');
+  await expect(form).toBeVisible();
+  await form.locator('input[name=name]').fill(p.name);
+  if (p.heroName !== undefined) await form.locator('input[name=heroName]').fill(p.heroName);
+  if (p.gender) await form.locator(`input[name=gender][value=${p.gender}]`).check({ force: true });
+  if (p.look) await form.locator(`input[name=look][value=${p.look}]`).check({ force: true });
+  if (p.lang) await form.locator(`input[name=lang][value=${p.lang}]`).check({ force: true });
+  if (p.inputMode) await form.locator(`input[name=inputMode][value=${p.inputMode}]`).check({ force: true });
+  if (p.ops) for (const op of ['add', 'sub', 'mul', 'div'] as const) await setChecked(page, `.settings-form input[name=ops][value=${op}]`, p.ops.includes(op));
+  if (p.range) await form.locator(`input[name=range][value="${p.range}"]`).check({ force: true });
+  if (p.speed) await form.locator(`input[name=speed][value=${p.speed}]`).check({ force: true });
+  if (p.missing !== undefined) await setChecked(page, '.settings-form input[name=missing]', p.missing);
+  await form.locator('button[type=submit]').click();
+}
+
+/** First start: creates the player, and skips the prologue unless asked to keep it open. */
+export async function createFirstPlayer(page: Page, p: Player, { keepPrologue = false } = {}): Promise<void> {
   await openApp(page);
-  await page.locator(`input[name=lang][value=${s.lang}]`).check({ force: true });
-  await page.locator('details.settings summary').click();
-  for (const op of ['add', 'sub', 'mul', 'div'] as const) {
-    const box = page.locator(`input[name=ops][value=${op}]`);
-    if (s.ops.includes(op)) await box.check({ force: true });
-    else await box.uncheck({ force: true });
+  await fillPlayer(page, p);
+  await expect(page.locator('.story')).toBeVisible();
+  if (!keepPrologue) {
+    await page.locator('[data-action=skip]').click();
+    await expect(page.locator('.greeting')).toBeVisible();
   }
-  await page.locator(`input[name=range][value="${s.range}"]`).check({ force: true });
-  await page.locator(`input[name=speed][value=${s.speed}]`).check({ force: true });
-  const missing = page.locator('input[name=missing]');
-  if (s.missing) await missing.check({ force: true });
-  else await missing.uncheck({ force: true });
-  await page.locator('form button[type=submit]').click();
+}
+
+export async function startPractice(page: Page, s: Setup & Partial<Player>): Promise<void> {
+  await createFirstPlayer(page, { name: 'Nika', ...s });
+  await page.locator('[data-action=start]').click();
   await expect(page.locator('.problem')).toContainText('?');
 }
 
+/** Opens the parents' corner from the current screen: hold for 3 s, then solve the multiplication. */
+export async function passGate(page: Page): Promise<void> {
+  await page.locator('[data-action=parents]').click();
+  const hold = page.locator('[data-action=hold]');
+  await hold.hover();
+  await page.mouse.down();
+  await page.waitForTimeout(3200);
+  await page.mouse.up();
+  const label = (await page.locator('.gate-label').textContent()) ?? '';
+  const [a, b] = (label.match(/\d+/g) ?? []).map(Number);
+  await page.locator('#gate-answer').fill(String(a * b));
+  await page.locator('.gate-question button[type=submit]').click();
+  await expect(page.locator('.parents')).toBeVisible();
+}
+
+/** The problem on screen, once one is waiting for an answer (the battle draws the first one after a moment). */
 export async function currentProblem(page: Page): Promise<string> {
+  await expect(page.locator('.problem')).toContainText('?');
   return (await page.locator('.problem').textContent()) ?? '';
 }
 
-/** Types a number on the on-screen keypad and confirms it. */
+/** Answers on the keypad, or taps the matching choice in 4-choice mode. */
 export async function answer(page: Page, value: number): Promise<void> {
+  if (await page.locator('.choices').count()) {
+    const choice = page.locator(`.choices [data-choice="${value}"]`);
+    if (await choice.count()) return choice.click();
+    // The value is not offered: tap a different (wrong) choice.
+    return page.locator('.choices [data-choice]').first().click();
+  }
   for (const digit of String(value)) await page.locator(`.keypad [data-key="${digit}"]`).click();
   await page.locator('.keypad [data-key="ok"]').click();
 }

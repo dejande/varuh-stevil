@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { MonsterApproach } from '../core/approach';
+import type { HeroLook } from '../core/profile';
 import { COLORS, FONT_FAMILY } from '../theme';
 
 export const WIDTH = 800;
@@ -17,6 +18,8 @@ export interface MonsterConfig {
   seconds: number | null;
 }
 
+const hex = (css: string) => Number.parseInt(css.replace('#', ''), 16);
+
 const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 /** Paper-cut alpine battlefield: the Keeper on the left, one fog imp drifting in from the right. */
@@ -31,7 +34,7 @@ export class BattleScene extends Phaser.Scene {
   private paused = false;
   private shadeIndex = 0;
 
-  constructor() {
+  constructor(private readonly look: HeroLook) {
     super('battle');
     this.ready = new Promise((r) => (this.resolveReady = r));
   }
@@ -255,7 +258,7 @@ export class BattleScene extends Phaser.Scene {
     const cape = this.add.graphics();
     cape.fillStyle(COLORS.ink, 0.16);
     cape.fillTriangle(-30, 4, 0, -76, 30, 4);
-    cape.fillStyle(COLORS.cape, 1);
+    cape.fillStyle(hex(this.look.cape), 1);
     cape.fillTriangle(-30, 0, 0, -80, 30, 0);
     cape.fillStyle(COLORS.honey, 1);
     cape.fillRect(-30, -6, 60, 6);
@@ -264,8 +267,8 @@ export class BattleScene extends Phaser.Scene {
     h.add(this.add.circle(0, -92, 17, COLORS.skin));
     h.add(this.add.circle(-6, -92, 2.2, COLORS.ink));
     h.add(this.add.circle(6, -92, 2.2, COLORS.ink));
-    h.add(this.add.ellipse(0, -104, 54, 10, COLORS.hat));
-    h.add(this.add.ellipse(0, -114, 30, 22, COLORS.hat));
+    h.add(this.add.ellipse(0, -104, 54, 10, hex(this.look.hat)));
+    h.add(this.add.ellipse(0, -114, 30, 22, hex(this.look.hat)));
     h.add(this.add.rectangle(0, -108, 30, 4, COLORS.honey));
     h.add(this.add.star(12, -116, 6, 2, 6, COLORS.snow));
     // Staff with a glowing number orb

@@ -3,7 +3,11 @@
  * Same paper-cut language and palette as the battle scene (src/game/BattleScene.ts, src/theme.ts).
  * The top third stays open sky so a title can sit on it.
  */
+import { HERO_LOOKS, type HeroLook } from './core/profile';
+
 export interface SceneOptions {
+  /** Cape and hat colours of the player's hero. */
+  look: HeroLook;
   /** How much of Pozabnik's fog covers the valley. */
   fog: 'none' | 'light' | 'heavy';
   keeper: boolean;
@@ -17,7 +21,7 @@ export interface SceneOptions {
   forgotten: boolean;
 }
 
-const HOME: SceneOptions = { fog: 'light', keeper: true, rogec: true, imp: true, numbers: false, pozabnik: false, forgotten: false };
+const HOME: SceneOptions = { look: HERO_LOOKS[0], fog: 'light', keeper: true, rogec: true, imp: true, numbers: false, pozabnik: false, forgotten: false };
 
 const DEFS = `
   <defs>
@@ -128,20 +132,23 @@ const ROGEC = `
     <ellipse cx="-22" cy="-30" rx="4" ry="3" fill="#fff"/>
   </g>`;
 
-const KEEPER = `
+/** The Keeper, standing at (180, 340) in scene coordinates. */
+export function keeperSvg(look: HeroLook): string {
+  return `
   <g transform="translate(180 340)">
-    <path d="M-30 0 0-80 30 0Z" fill="#23408e"/>
+    <path d="M-30 0 0-80 30 0Z" fill="${look.cape}"/>
     <rect x="-30" y="-6" width="60" height="6" fill="#f2b035"/>
     <circle cx="0" cy="-92" r="17" fill="#f4cda5"/>
     <circle cx="-6" cy="-92" r="2.2" fill="#1f2d5a"/><circle cx="6" cy="-92" r="2.2" fill="#1f2d5a"/>
-    <ellipse cx="0" cy="-104" rx="27" ry="5" fill="#2f6b4f"/>
-    <ellipse cx="0" cy="-114" rx="15" ry="11" fill="#2f6b4f"/>
+    <ellipse cx="0" cy="-104" rx="27" ry="5" fill="${look.hat}"/>
+    <ellipse cx="0" cy="-114" rx="15" ry="11" fill="${look.hat}"/>
     <rect x="-15" y="-110" width="30" height="4" fill="#f2b035"/>
     <path d="M12 -122l2 4 4 0-3 3 1 4-4-2-4 2 1-4-3-3 4 0Z" fill="#fff"/>
     <rect x="31" y="-104" width="5" height="104" fill="#8b5a2b"/>
     <circle cx="34" cy="-112" r="16" fill="#f2b035" opacity="0.25"/>
     <circle cx="34" cy="-112" r="9" fill="#f2b035"/>
   </g>`;
+}
 
 const IMP = `
   <g transform="translate(560 330)">
@@ -166,12 +173,15 @@ export function sceneSvg(options: Partial<SceneOptions> = {}): string {
     ${fog(o.fog)}
     ${o.pozabnik ? POZABNIK : ''}
     ${o.rogec ? ROGEC : ''}
-    ${o.keeper ? KEEPER : ''}
+    ${o.keeper ? keeperSvg(o.look) : ''}
     ${o.imp ? IMP : ''}
   </svg>`;
 }
 
-export const HOME_SCENE_SVG = sceneSvg();
+/** Small portrait of the Keeper for the player picker. */
+export function avatarSvg(look: HeroLook): string {
+  return `<svg viewBox="134 200 100 145" aria-hidden="true">${keeperSvg(look)}</svg>`;
+}
 
 /** One illustration per prologue panel, in panel order. */
 export const PROLOGUE_SCENES: Partial<SceneOptions>[] = [

@@ -33,16 +33,21 @@ npm run preview    # serve dist/ at http://localhost:4173/varuh-stevil/
 | `npm run build` | `check:i18n`, then `tsc --noEmit`, then `vite build` with base `/varuh-stevil/` |
 | `npm run icons` | Regenerates the placeholder PWA icons in `public/` |
 
-## How to play (milestone 1)
+## How to play
 
-0. On the first visit the **prologue** tells the story in four short panels (Pozabnik's fog took the numbers, Rogec asks the hero for help). **Preskoči / Skip** jumps to the home screen; **Zgodba / Story** on the home screen replays it.
-1. On the home screen pick the language (top right). **Nastavitve vadbe / Practice settings** below the Start button opens the operations, number range, monster speed and task types (plain, or missing number in either position: `8 + ? = 13`, `? + 5 = 13`). Settings are in memory only for now; profiles and storage come in milestone 2.
-2. Press **Začni / Start**. A fog imp drifts toward the hero with a problem. The bar at the top shows how far into the level you are, one segment per monster.
-3. Type the answer on the keypad (or the keyboard: digits, Backspace, Enter) and confirm with ✓.
+1. **First start:** a parent creates the first player: name, hero name for the story (up to 12 characters), girl or boy hero (for Slovene word forms), hero colours, language, answering mode (number keypad or 4 answer choices), monster speed, operations, number range and task types (missing number in either position: `8 + ? = 13`, `? + 5 = 13`).
+2. **Prologue:** each new player first sees the story in four short panels, with their hero name in it. **Preskoči / Skip** jumps ahead; **Zgodba / Story** on the home screen replays it.
+3. **Kdo igra? / Who's playing?** With more than one player, the game asks who is playing and remembers the last one. **Zamenjaj igralca / Switch player** on the home screen goes back to the list.
+4. Press **Začni / Start**. A fog imp drifts toward the hero with a problem. The bar at the top shows how far into the level you are, one segment per monster.
+5. Answer on the keypad (or the keyboard: digits, Backspace, Enter), or tap one of the 4 choices.
    - Correct: the answer flies from the hero's staff as a golden number and dissolves the fog imp.
    - Wrong: the correct answer and one strategy hint appear, the monster steps closer, and the fact comes back 3–5 problems later.
    - If the monster reaches the hero, the hero loses a heart. With 0 of 3 hearts the level ends with an encouraging message.
-4. After 10 monsters (plus any retries) the level ends with 1–3 stars.
+6. After 10 monsters (plus any retries) the level ends with 1–3 stars.
+
+**Parents' corner** (**Za starše / For parents**, on the player list and the home screen): hold the button for 3 seconds, then solve a two-digit multiplication. Inside: add players (up to 6), edit each player's settings, reset a player's progress (the settings stay), or delete a player.
+
+Everything is stored on the device in IndexedDB. Nothing leaves it. In a browser that blocks storage (some private windows) the game still works and says that players will be forgotten.
 
 Monster speed: **Relaxed** stops at a safe distance and only wrong answers move it (3 wrong answers on one monster cost a heart). **Normal** reaches the hero in 12 s (0–10, 0–20), 15 s (0–100) or 20 s (0–1000). **Fast** takes 70% of that. A wrong answer in Normal/Fast pushes the monster a quarter of the way forward; the next problem again gets the full target time for the distance that is left.
 
@@ -51,7 +56,7 @@ Monster speed: **Relaxed** stops at a safe distance and only wrong answers move 
 Two layers protect what already works:
 
 - **Unit tests** (`tests/`, Vitest) cover the rules: every generated problem for all 120 combinations of operations, ranges and task types (40 seeds each), round quotas, retries, stars, hints, notation, plurals and the i18n check.
-- **End-to-end tests** (`e2e/`, Playwright) play the production build in Chrome, on a desktop and a phone viewport: language switch, a full level in Slovene and in English with one mistake (the wrong fact must come back 3–5 problems later), Relaxed hearts, losing all hearts, the Normal-speed timeout, and keyboard input.
+- **End-to-end tests** (`e2e/`, Playwright) play the production build in Chrome, on a desktop and a phone viewport: first start and player setup, a full level in Slovene and in English with one mistake (the wrong fact must come back 3–5 problems later), Relaxed hearts, losing all hearts, the Normal-speed timeout, keyboard input, the prologue per player, the parent gate, adding/editing/switching/deleting players across reloads, the 6-player limit, and a full level in 4-choice mode. Each test starts on an empty device.
 
 Run `npm run test:all` before every commit. CI runs both before deploying. Locally the e2e tests use the installed Google Chrome; CI installs Playwright's Chromium.
 
@@ -64,6 +69,9 @@ Run `npm run test:all` before every commit. CI runs both before deploying. Local
 ```
 docs/spec.md              approved spec, source of truth
 src/core/                 game rules, no rendering (unit tested)
+  choices.ts              the 4 answer choices and their distractors (§3)
+  gate.ts                 parent gate question
+  profile.ts              player model, hero colours, validation, sanitising stored data
   types.ts                Op, Range, Speed, Problem, Profile
   generator.ts            problem generation (§3 rules, round quotas)
   facts.ts                fact keys, carry/borrow detection, answers
@@ -71,13 +79,15 @@ src/core/                 game rules, no rendering (unit tested)
   hints.ts                strategy hint after a mistake (§5)
   format.ts               SL (· :) and EN (× ÷) notation
   speed.ts                target time per range and speed
-  profile.ts              the one hard-coded profile of milestone 1
   approach.ts             how a monster approaches the hero (speeds, steps, time per problem)
 src/i18n/                 sl.json, en.json (ICU MessageFormat), translate()
 src/story/                story.sl.json, story.en.json (frozen story text), storyPanels()
 src/game/BattleScene.ts   Phaser scene: hero, monster, spell (placeholder shapes)
 src/game/battle.ts        wires LevelSession + scene + DOM keypad and feedback
-src/main.ts               home, battle and result screens (plain DOM)
+src/storage/store.ts      players and device settings in IndexedDB (memory fallback)
+src/ui/                   screens in plain DOM: app shell, player picker, home, prologue,
+                          parent gate, parents' corner, player editor, result
+src/main.ts               starts the app
 src/homeScene.ts          home and prologue illustrations (inline SVG, sceneSvg())
 src/theme.ts              palette and font shared with Phaser
 e2e/                      Playwright end-to-end tests and helpers
@@ -115,6 +125,17 @@ Strings live in `src/i18n/sl.json` and `src/i18n/en.json` as ICU MessageFormat. 
 ## Changelog
 
 Newest first. Every change to the repo adds a line here.
+
+### 2026-11-05: Milestone 2, players and parents' corner
+
+- Up to 6 players, each with a name, a hero name for the story (12 characters at most), girl or boy hero, hero colours, language, answering mode, monster speed, operations, range and task types.
+- First start asks a parent to create the first player; with several players the game asks "Kdo igra? / Who's playing?" and remembers the last one.
+- Parent gate: hold for 3 seconds, then solve a two-digit multiplication. The parents' corner adds, edits, resets and deletes players. Practice settings moved there from the home screen.
+- 4-choice answering for the youngest players, with distractors from §3 (±1, ±10 from 0–100, wrong operation, swapped digits), all within the range.
+- Everything is saved on the device in IndexedDB; the prologue is remembered per player. The built-in "Nika" profile is gone.
+- The hero on the home screen, in the story and in battle wears the player's colours.
+- UI code split into `src/ui/`; storage in `src/storage/`.
+- Tests: unit tests for choices, players, the gate and storage (IndexedDB via fake-indexeddb); end-to-end tests for setup, the gate, the parents' corner, persistence and 4-choice mode.
 
 ### 2026-11-05: On GitHub
 

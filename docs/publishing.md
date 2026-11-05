@@ -1,6 +1,6 @@
 # Publishing texts
 
-Ready-to-paste texts for GitHub, GitHub Pages, the installed app and the family. They describe what the game does **today** (milestone 1 plus the prologue). Update them when a milestone lands; the "Not yet" lists say what to add.
+Ready-to-paste texts for GitHub, GitHub Pages, the installed app and the family. They describe what the game does **today** (milestones 1 and 2). Update them when a milestone lands; the "Not yet" lists say what to add.
 
 ## GitHub repository
 
@@ -40,6 +40,9 @@ V dolini pod Triglavom so ljudje nekoč znali šteti do neskončnosti. Potem je 
 
 Proti junaku drsijo megleni škratki, vsak z računom. Pravilen odgovor poleti iz čarobne palice kot zlata številka in škratka razblini. Ob napaki igra pokaže pravilni odgovor in kratek namig, kako račun izračunati (na primer »Dopolni do 10: 8 + 5 = 8 + 2 + 3«), napačen račun pa se čez nekaj nalog vrne.
 
+- Do 6 igralcev, vsak s svojim junakom, barvami in nastavitvami
+- Za najmlajše: odgovarjanje s štirimi ponujenimi odgovori
+- Kotiček za starše, zaklenjen z računom, ki ga otroci še ne znajo
 - Seštevanje, odštevanje, množenje in deljenje, posamezno ali pomešano
 - Obseg do 10, 20, 100 ali 1000
 - Naloge z manjkajočim številom: 8 + ? = 13 in ? + 5 = 13
@@ -57,6 +60,9 @@ In the valley below Triglav, people could once count to infinity. Then the Forge
 
 Fog imps drift toward the hero, each carrying a sum. A right answer flies from the Keeper's staff as a golden number and dissolves the imp. After a mistake the game shows the right answer and one short strategy hint (for example "Make 10: 8 + 5 = 8 + 2 + 3"), and the sum comes back a few problems later.
 
+- Up to 6 players, each with their own hero, colours and settings
+- For the youngest: answer by picking one of four choices
+- A parents' corner, locked with a sum the kids can't do yet
 - Addition, subtraction, multiplication and division, alone or mixed
 - Numbers up to 10, 20, 100 or 1000
 - Missing-number problems: 8 + ? = 13 and ? + 5 = 13
@@ -64,6 +70,28 @@ Fog imps drift toward the hero, each carrying a sum. A right answer flies from t
 - Slovene and English, with the notation each school uses (· and : in Slovene, × and ÷ in English)
 - Works offline after the first visit
 - No ads, purchases, accounts or tracking; all data stays on the device
+
+## Release notes: v0.2.0 (players)
+
+**SL**
+
+- Do 6 igralcev: vsak ima svoje ime, junaka v zgodbi, barve, jezik, hitrost in računske nastavitve
+- Ob prvem zagonu starš ustvari prvega igralca; igra si zapomni, kdo je igral nazadnje
+- Kotiček za starše: drži gumb 3 sekunde, nato reši dvomestno množenje. Tam dodajaš, urejaš, ponastaviš ali izbrišeš igralce
+- Za najmlajše: odgovarjanje s štirimi ponujenimi odgovori
+- Vse se shrani na napravi; uvodna zgodba se vsakemu igralcu pokaže enkrat
+
+Še ne: zgodba s poglavji in šefi, statistika za starše, značke, izvoz igralcev na drugo napravo, zvoki.
+
+**EN**
+
+- Up to 6 players, each with their own name, story hero, colours, language, speed and maths settings
+- On first start a parent creates the first player; the game remembers who played last
+- Parents' corner: hold the button for 3 seconds, then solve a two-digit multiplication. Add, edit, reset or delete players there
+- For the youngest: answer by picking one of four choices
+- Everything is saved on the device; each player sees the prologue once
+
+Not yet: the story chapters and bosses, parent stats, badges, moving players to another device, sound.
 
 ## Release notes: v0.1.0 (first playable)
 
@@ -79,7 +107,7 @@ Prva igralna različica Varuha števil.
 - Slovenščina in angleščina
 - Deluje brez interneta in se da namestiti kot aplikacija
 
-Še ne: profili za vsakega otroka, zgodba s poglavji in šefi, način s ponujenimi odgovori, statistika za starše, zvoki.
+Še ne (ob izidu): profili za vsakega otroka, zgodba s poglavji in šefi, način s ponujenimi odgovori, statistika za starše, zvoki.
 
 **EN**
 
@@ -93,7 +121,7 @@ First playable version of Keeper of Numbers.
 - Slovene and English
 - Works offline and installs as an app
 
-Not yet: a profile for each child, the story chapters and bosses, multiple-choice answers, parent stats, sound.
+Not yet (at the time): a profile for each child, the story chapters and bosses, multiple-choice answers, parent stats, sound.
 
 ## Install guide for the family
 

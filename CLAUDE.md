@@ -14,8 +14,8 @@ The repo and the site are public. Never write the children's real names, ages be
 
 ## Status (2026-11-05)
 
-Milestone 1 (battle core) is done and committed locally:
-- Practice mode, one hard-coded profile (`src/core/profile.ts`), in-memory settings form on the home screen
+Milestone 2 (players, parent gate, settings per player, 4-choice input, IndexedDB storage) is done and deployed. Milestone 1 (battle core) before it:
+- Practice mode (since milestone 2 with the active player's settings)
 - All four operations and ranges, missing-number problems, SL `·` `:` / EN `×` `÷`
 - Monster approach with Relaxed/Normal/Fast, 3 hearts, stars, keypad plus keyboard
 - Answer plus strategy hint after a mistake, retry 3–5 problems later
@@ -24,7 +24,9 @@ Milestone 1 (battle core) is done and committed locally:
 
 Design pass done the same day ("Alpine paper-cut", see README "Design"): Dejan found the first placeholder look ugly. Art is still drawn from shapes; real illustrations come in milestone 5. Keep the rules: honey only for the one main action per screen, selected options in ink, no text glyphs for icons.
 
-The prologue (spec §8, approved text) is in: first-visit intro plus a Story button. The seen flag is in localStorage (`varuh-stevil.prologueSeen`) until profiles arrive in milestone 2. Chapter intros/outros and the 25 level panels come in milestone 3; the level panels need Dejan's approval before they are frozen.
+The prologue (spec §8, approved text) is in: shown once per new player, replayable with the Story button. "Seen" lives in `profile.progress.prologueSeen`.
+
+Milestone 2 structure: `src/ui/app.ts` is the shell (state, storage, navigation); each screen is a `render…(app)` function in `src/ui/`. `app.t()` translates for the active player (language, hero, gender); `app.tUi()` for device screens (picker, parents' corner) in `meta.uiLang`. Stored data always goes through `sanitizeProfile` on load, so new fields need a default there. Chapter intros/outros and the 25 level panels come in milestone 3; the level panels need Dejan's approval before they are frozen.
 
 Monster approach rules live in `src/core/approach.ts`. After a mistake the same monster stays closer (that is the consequence), but the next problem gets the full target time for the remaining distance (bug Dejan reported 2026-11-05).
 
@@ -33,10 +35,9 @@ Battle header has a segmented level progress bar. Story levels don't exist yet, 
 ## Next
 
 1. **GitHub:** repo `git@github.com:dejande/varuh-stevil.git`, site https://dejande.github.io/varuh-stevil/. Pushing needs SSH keys, which the Claude sandbox can't read: push from the Terminal panel. Push only when Dejan asks.
-3. **Milestone 2:** profiles (up to 6), parent gate, settings per child, the multiple-choice input mode (distractor rules in spec §3), IndexedDB storage.
-4. **Milestone 3:** chapter map, 30 levels, bosses, frozen story text, stars and unlocks. Draft the per-level panel text (5 × 5, SL + EN) first; Dejan approves it before it is frozen.
-5. **Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.
-6. **Milestone 5:** Android APK via Capacitor on GitHub Releases, art and sound pass.
+2. **Milestone 3:** chapter map, 30 levels, bosses, frozen story text, stars and unlocks. Draft the per-level panel text (5 × 5, SL + EN) first; Dejan approves it before it is frozen.
+3. **Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.
+4. **Milestone 5:** Android APK via Capacitor on GitHub Releases, art and sound pass.
 
 ## Tests: run before every commit
 
@@ -44,7 +45,7 @@ Dejan's rule (2026-11-05): don't break what already works. Run `npm run test:all
 
 - From a Claude sandbox, Chrome cannot start (`Operation not permitted`), so run the e2e suite in the Terminal panel (`run_in_terminal`), not Bash. Unit tests run fine in Bash.
 - The e2e server runs on `127.0.0.1:4317` with `reuseExistingServer: false`, because a stale `vite preview` keeps serving an old asset list.
-- E2E helpers (`e2e/helpers.ts`) open the settings panel, pick options and solve problems from the screen text. Keep class names `.problem`, `.feedback`, `.result`, `.keypad [data-key]`, `.hearts .heart.full`, `.progress` stable, or update the helpers in the same change.
+- E2E helpers (`e2e/helpers.ts`) create the first player through the editor (`createFirstPlayer`, `fillPlayer`), pass the parent gate (`passGate`) and solve problems from the screen text. Every test starts on an empty device. `currentProblem` waits for a problem on screen; read problems only through it. Keep class names `.problem`, `.feedback`, `.result`, `.keypad [data-key]`, `.hearts .heart.full`, `.progress` stable, or update the helpers in the same change.
 
 ## Commands
 

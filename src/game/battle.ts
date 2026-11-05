@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
+import { makeChoices } from '../core/choices';
 import { formatProblem } from '../core/format';
 import { pickHint } from '../core/hints';
 import { LevelSession, type AnswerResult } from '../core/level';
+import { heroLook } from '../core/profile';
 import { targetSeconds } from '../core/speed';
 import type { Profile } from '../core/types';
 import { translate, type MessageKey, type Values } from '../i18n/i18n';
@@ -24,10 +26,11 @@ function heartSvg(full: boolean): string {
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'erase', '0', 'ok'] as const;
 
-/** One Practice level: wires the level rules to the Phaser scene and the DOM keypad. */
+/** One Practice level: wires the level rules to the Phaser scene and the DOM keypad or answer choices. */
 export class Battle {
   private readonly session: LevelSession;
-  private readonly scene = new BattleScene();
+  private readonly scene: BattleScene;
+  private readonly choicesMode: boolean;
   private game?: Phaser.Game;
   private input = '';
   private busy = true;
@@ -53,6 +56,8 @@ export class Battle {
     private readonly onHome: () => void,
   ) {
     this.session = new LevelSession(profile.settings, Math.random);
+    this.scene = new BattleScene(heroLook(profile.look));
+    this.choicesMode = profile.inputMode === 'choices';
     this.maxDigits = String(profile.settings.range).length;
     this.el = this.render(host);
   }
@@ -102,13 +107,17 @@ export class Battle {
         <div class="stage"></div>
         <div class="problem" aria-live="polite"></div>
         <div class="feedback" hidden></div>
-        <div class="keypad" role="group" aria-label="${this.t('battle.answerLabel')}">
+        ${
+          this.choicesMode
+            ? `<div class="answer-input choices" role="group" aria-label="${this.t('battle.choicesLabel')}"></div>`
+            : `<div class="answer-input keypad" role="group" aria-label="${this.t('battle.answerLabel')}">
           ${KEYS.map((k) => {
             const label = k === 'erase' ? ERASE_ICON : k === 'ok' ? OK_ICON : k;
             const aria = k === 'erase' ? this.t('battle.erase') : k === 'ok' ? this.t('battle.ok') : k;
             return `<button class="key key-${k}" data-key="${k}" aria-label="${aria}">${label}</button>`;
           }).join('')}
-        </div>
+        </div>`
+        }
       </section>`;
     const q = (s: string) => host.querySelector(s) as HTMLElement;
     const el = {
@@ -118,12 +127,13 @@ export class Battle {
       track: q('.track'),
       hearts: q('.hearts'),
       problem: q('.problem'),
-      keypad: q('.keypad'),
+      keypad: q('.answer-input'),
       feedback: q('.feedback'),
     };
     el.keypad.addEventListener('click', (e) => {
       const btn = (e.target as HTMLElement).closest('button');
       if (btn?.dataset.key) this.press(btn.dataset.key);
+      else if (btn?.dataset.choice) this.choose(Number(btn.dataset.choice));
     });
     q('[data-action="home"]').addEventListener('click', () => this.onHome());
     return el;
@@ -137,6 +147,7 @@ export class Battle {
       }
       return;
     }
+    if (this.choicesMode) return;
     if (/^[0-9]$/.test(e.key)) this.press(e.key);
     else if (e.key === 'Backspace') this.press('erase');
     else if (e.key === 'Enter') this.press('ok');
@@ -148,6 +159,21 @@ export class Battle {
     else if (key === 'ok') return void this.submit();
     else if (this.input.length < this.maxDigits) this.input = this.input === '0' ? key : this.input + key;
     this.updateProblem();
+  }
+
+  private choose(value: number): void {
+    if (this.busy || this.feedbackOpen) return;
+    this.input = String(value);
+    this.updateProblem();
+    void this.submit();
+  }
+
+  private renderChoices(): void {
+    const p = this.session.current;
+    if (!this.choicesMode || !p) return;
+    this.el.keypad.innerHTML = makeChoices(p, this.profile.settings.range, Math.random)
+      .map((n) => `<button class="choice" data-choice="${n}">${n}</button>`)
+      .join('');
   }
 
   private updateHud(): void {
@@ -179,6 +205,7 @@ export class Battle {
     this.input = '';
     this.updateHud();
     this.updateProblem();
+    this.renderChoices();
     this.busy = false;
   }
 

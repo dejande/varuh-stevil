@@ -1,24 +1,25 @@
 import { expect, test } from '@playwright/test';
-import { answer, currentProblem, fullHearts, openApp, playToEnd, solve, startPractice, waitForNext } from './helpers';
+import { answer, createFirstPlayer, currentProblem, fullHearts, fillPlayer, openApp, playToEnd, solve, startPractice, waitForNext } from './helpers';
 
 test.describe('home screen', () => {
-  test('switches language', async ({ page }) => {
-    await openApp(page);
+  test('switches the player language', async ({ page }) => {
+    await createFirstPlayer(page, { name: 'Nika' });
     await expect(page.locator('h1')).toHaveText('Varuh števil');
     await expect(page).toHaveTitle('Varuh števil');
     await page.locator('input[name=lang][value=en]').check({ force: true });
     await expect(page.locator('h1')).toHaveText('Keeper of Numbers');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.locator('form button[type=submit]')).toHaveText('Start');
+    await expect(page.locator('[data-action=start]')).toHaveText('Start');
+    await page.reload();
+    await expect(page.locator('h1')).toHaveText('Keeper of Numbers');
   });
 
-  test('needs at least one operation', async ({ page }) => {
+  test('a player needs a name and at least one operation', async ({ page }) => {
     await openApp(page);
-    await page.locator('details.settings summary').click();
-    for (const op of ['add', 'sub', 'mul', 'div']) await page.locator(`input[name=ops][value=${op}]`).uncheck({ force: true });
-    await page.locator('form button[type=submit]').click();
-    await expect(page.locator('.error')).toBeVisible();
-    await expect(page.locator('.battle')).toHaveCount(0);
+    await fillPlayer(page, { name: '', ops: [] });
+    await expect(page.locator('[data-error=nameRequired]')).toBeVisible();
+    await expect(page.locator('[data-error=needOp]')).toBeVisible();
+    await expect(page.locator('.settings-form')).toBeVisible();
   });
 });
 

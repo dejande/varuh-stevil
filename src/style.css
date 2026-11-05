@@ -132,11 +132,19 @@ button:focus-visible,
   text-align: center;
 }
 
+.topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .lang-switch {
-  align-self: flex-end;
   display: flex;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-left: auto;
 }
 
 .lang-switch .chip span {
@@ -257,8 +265,309 @@ legend {
   font-weight: 700;
 }
 
-.btn-story {
-  margin-top: 14px;
+.home-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  color: var(--ink-soft);
+  font-weight: 700;
+  padding: 6px 8px;
+}
+
+.btn-link svg,
+.btn-secondary svg {
+  width: 18px;
+  height: 18px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Player picker */
+.picker,
+.parents,
+.editor,
+.gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.picker h1,
+.parents h1,
+.editor h1,
+.gate h1 {
+  margin: 12px 0 18px;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.players {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px 10px;
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 5px 0 var(--paper-edge);
+}
+
+.player-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--paper-edge);
+}
+
+.avatar {
+  display: block;
+  width: 96px;
+  height: 110px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #9fd3e6, #e4f3f6 70%, #8fc07a 70%);
+  overflow: hidden;
+}
+
+.avatar svg {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar.small {
+  width: 48px;
+  height: 56px;
+  border-radius: 12px;
+  flex: none;
+}
+
+.player-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+/* Parent gate */
+.gate-hold p,
+.gate-label {
+  display: block;
+  font-size: 1.2rem;
+  margin: 0 0 14px;
+}
+
+.hold-btn {
+  position: relative;
+  overflow: hidden;
+  width: min(280px, 80vw);
+  height: 72px;
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 5px 0 var(--paper-edge);
+  font-size: 1.4rem;
+  font-weight: 800;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.hold-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--honey);
+}
+
+.hold-btn.holding .hold-fill {
+  width: 100%;
+  transition: width 3s linear;
+}
+
+.hold-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hold-label svg {
+  width: 22px;
+  height: 22px;
+}
+
+.gate-question {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.gate > .btn-small {
+  margin-top: 28px;
+}
+
+input[type='text'] {
+  font: inherit;
+  font-size: 1.3rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--paper-edge);
+  border-radius: 14px;
+  padding: 8px 14px 6px;
+  width: 100%;
+}
+
+input[type='text']:focus {
+  outline: 3px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.gate input[type='text'] {
+  width: 9ch;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+/* Parents' corner */
+.parents h2 {
+  align-self: flex-start;
+  margin: 0 0 10px;
+  font-size: 1.3rem;
+  color: var(--ink-soft);
+}
+
+.player-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 12px;
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 0 var(--paper-edge);
+  text-align: left;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 140px;
+}
+
+.player-info .player-name {
+  font-size: 1.25rem;
+}
+
+.player-meta {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.player-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-small.danger {
+  color: var(--berry);
+}
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note {
+  color: var(--ink-soft);
+  margin: 10px 0 0;
+}
+
+.note.warn {
+  color: var(--berry);
+  font-weight: 700;
+}
+
+.parents > .btn-primary {
+  margin-top: 26px;
+}
+
+/* Player editor */
+.settings-form {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.field-hint {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.swatch span {
+  display: inline-flex;
+  gap: 4px;
+  padding: 8px 10px;
+}
+
+.swatch i {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
 }
 
 /* Story */
@@ -506,6 +815,30 @@ legend {
   margin-top: 6px;
 }
 
+/* Four answer choices for the youngest players */
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.choice {
+  min-height: 84px;
+  font-size: clamp(2rem, 9vw, 2.8rem);
+  font-weight: 800;
+  background: var(--paper);
+  border-radius: var(--radius-key);
+  box-shadow: 0 5px 0 var(--paper-edge);
+}
+
+.choice:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--paper-edge);
+}
+
 /* Result */
 .result {
   display: flex;
@@ -589,7 +922,7 @@ legend {
     grid-area: problem;
     justify-self: stretch;
   }
-  .keypad,
+  .answer-input,
   .feedback {
     grid-area: pad;
   }
@@ -599,4 +932,12 @@ legend {
   * {
     transition: none !important;
   }
+}
+
+/* A selected colour swatch keeps its colours visible and gets a ring. */
+.chip.swatch input:checked + span {
+  background: var(--paper);
+  box-shadow:
+    0 0 0 3px var(--ink),
+    0 4px 0 var(--paper-edge);
 }
