@@ -710,7 +710,7 @@ input[type='text']:focus {
 
 .stage {
   width: 100%;
-  aspect-ratio: 800 / 360;
+  aspect-ratio: 800 / 450;
   max-height: 44dvh;
   border-radius: var(--radius-card);
   overflow: hidden;
@@ -898,11 +898,20 @@ input[type='text']:focus {
   margin-top: 28px;
 }
 
-/* Landscape tablets: battlefield on the left, problem and keypad on the right. */
+/* The battle may use the whole screen width; other screens stay at reading width. */
+#app:has(.battle) {
+  max-width: 1600px;
+}
+
+/*
+ * Landscape tablets and wide screens: battlefield on the left, problem and keypad in a narrow column on the right.
+ * Stacked, the keypad would not fit under the picture on a tablet held sideways. The picture takes all the
+ * width the keypad leaves, but never more than the screen height allows.
+ */
 @media (orientation: landscape) and (min-width: 700px) {
   .battle {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: minmax(0, 1fr) clamp(250px, 27vw, 360px);
     grid-template-rows: auto auto 1fr;
     grid-template-areas:
       'hud hud'
@@ -916,11 +925,18 @@ input[type='text']:focus {
   }
   .stage {
     grid-area: stage;
+    justify-self: center;
+    width: min(100%, calc((100dvh - 110px) * 800 / 450));
     max-height: none;
   }
   .problem {
     grid-area: problem;
     justify-self: stretch;
+    min-width: 0;
+    padding-inline: 10px;
+    white-space: nowrap;
+    /* Fits "999 + 999 = ?" in the keypad column. */
+    font-size: clamp(1.6rem, 3.1vw, 3.4rem);
   }
   .answer-input,
   .feedback {

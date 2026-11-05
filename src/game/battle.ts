@@ -10,7 +10,7 @@ import type { Profile } from '../core/types';
 import { translate, type MessageKey, type Values } from '../i18n/i18n';
 import { FONT_FAMILY } from '../theme';
 import { storyNames } from '../story/story';
-import { BattleScene, HEIGHT, WIDTH } from './BattleScene';
+import { BattleScene, VIEW_HEIGHT, WIDTH } from './BattleScene';
 
 export interface BattleOutcome {
   won: boolean;
@@ -76,7 +76,7 @@ export class Battle {
       type: Phaser.AUTO,
       parent: this.el.stage,
       width: WIDTH,
-      height: HEIGHT,
+      height: VIEW_HEIGHT,
       backgroundColor: '#e4f3f6',
       scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
       audio: { noAudio: true },

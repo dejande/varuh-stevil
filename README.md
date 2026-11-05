@@ -129,6 +129,12 @@ Strings live in `src/i18n/sl.json` and `src/i18n/en.json` as ICU MessageFormat. 
 
 Newest first. Every change to the repo adds a line here.
 
+### 2026-11-05: Bigger battlefield
+
+- On wide screens and tablets held sideways the battle uses the full screen width; the keypad sits in a narrower column on the right, and the picture gets the rest (about 55% wider than before).
+- The battlefield is taller (more sky above the scene), so it fills more of the screen on every device.
+- The problem stays on one line in the side column, up to `999 + 999 = ?`.
+
 ### 2026-11-05: Milestone 3, the story
 
 - Chapter map with 5 places, 25 levels and 5 bosses; best stars per level saved per player; finishing a level unlocks the next, a boss needs 10 stars from its chapter, beating it opens the next place.

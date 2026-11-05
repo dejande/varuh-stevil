@@ -2,9 +2,9 @@ import Phaser from 'phaser';
 import { MonsterApproach } from '../core/approach';
 import type { HeroLook } from '../core/profile';
 import { COLORS, FONT_FAMILY } from '../theme';
-import { GROUND_Y, creatureLift, dissolveColour, drawBackground, drawRibica, makeBoss, makeMonster } from './art';
+import { GROUND_Y, SKY_EXTRA, creatureLift, dissolveColour, drawBackground, drawRibica, makeBoss, makeMonster } from './art';
 
-export { HEIGHT, WIDTH } from './art';
+export { VIEW_HEIGHT, WIDTH } from './art';
 
 const HERO_X = 150;
 const MONSTER_START_X = 730;
@@ -50,6 +50,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.cameras.main.setScroll(0, -SKY_EXTRA);
     drawBackground(this, this.options.chapter);
     this.drawRogec();
     if (this.options.chapter >= 4) drawRibica(this, HERO_X - 56, GROUND_Y - 112);

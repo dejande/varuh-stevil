@@ -9,6 +9,10 @@ import { COLORS } from '../theme';
 export const WIDTH = 800;
 export const HEIGHT = 360;
 export const GROUND_Y = 292;
+/** Extra sky above the 800 × 360 scene, so the battlefield is taller and fills more of the screen. */
+export const SKY_EXTRA = 90;
+/** Visible height of the battlefield: the camera starts SKY_EXTRA above y = 0. */
+export const VIEW_HEIGHT = HEIGHT + SKY_EXTRA;
 
 type Scene = Phaser.Scene;
 type Box = Phaser.GameObjects.Container;
@@ -36,7 +40,7 @@ export function paper(scene: Scene, flat: number[], colour: number, depth = 4, a
 function sky(scene: Scene, top: number, bottom: number): void {
   const g = scene.add.graphics();
   g.fillGradientStyle(top, top, bottom, bottom, 1);
-  g.fillRect(0, 0, WIDTH, HEIGHT);
+  g.fillRect(0, -SKY_EXTRA, WIDTH, HEIGHT + SKY_EXTRA);
 }
 
 function drift(scene: Scene, target: Phaser.GameObjects.GameObject & { x: number }, dx: number, duration: number): void {
