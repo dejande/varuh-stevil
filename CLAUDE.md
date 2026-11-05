@@ -16,7 +16,7 @@ Milestone 1 (battle core) is done and committed locally:
 - Monster approach with Relaxed/Normal/Fast, 3 hearts, stars, keypad plus keyboard
 - Answer plus strategy hint after a mistake, retry 3–5 problems later
 - `sl.json`/`en.json` with ICU plurals, build-time i18n check
-- GitHub Pages workflow (no remote yet; Dejan has not approved creating one or pushing)
+- GitHub Pages workflow; repo on GitHub (dejande/varuh-stevil)
 
 Design pass done the same day ("Alpine paper-cut", see README "Design"): Dejan found the first placeholder look ugly. Art is still drawn from shapes; real illustrations come in milestone 5. Keep the rules: honey only for the one main action per screen, selected options in ink, no text glyphs for icons.
 
@@ -28,7 +28,7 @@ Battle header has a segmented level progress bar. Story levels don't exist yet, 
 
 ## Next
 
-1. **Create the GitHub repo and push**, only after Dejan says so. Then set Pages to "GitHub Actions".
+1. **GitHub:** repo `git@github.com:dejande/varuh-stevil.git`, site https://dejande.github.io/varuh-stevil/. Pushing needs SSH keys, which the Claude sandbox can't read: push from the Terminal panel. Push only when Dejan asks.
 3. **Milestone 2:** profiles (up to 6), parent gate, settings per child, the multiple-choice input mode (distractor rules in spec §3), IndexedDB storage.
 4. **Milestone 3:** chapter map, 30 levels, bosses, frozen story text, stars and unlocks. Draft the per-level panel text (5 × 5, SL + EN) first; Dejan approves it before it is frozen.
 5. **Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.
@@ -78,4 +78,4 @@ Keyboard input works through `window.dispatchEvent(new KeyboardEvent('keydown', 
 
 ## Git
 
-Commit only on request. Never push or create the remote without Dejan's explicit OK. Stage only files you changed.
+Commit only on request. Push only when Dejan asks (remote `origin` = github.com:dejande/varuh-stevil). Stage only files you changed.

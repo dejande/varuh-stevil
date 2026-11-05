@@ -10,7 +10,7 @@ Ready-to-paste texts for GitHub, GitHub Pages, the installed app and the family.
 
 > Varuh števil / Keeper of Numbers: a math practice battle game for kids aged 6–11, in Slovene and English. Solve sums to chase away the fog imps of Pozabnik, who stole the numbers from the valley below Triglav. Offline PWA, no ads, no accounts, no tracking.
 
-**Website:** `https://<user>.github.io/varuh-stevil/`
+**Website:** `https://dejande.github.io/varuh-stevil/`
 
 **Topics:** `math-game` `kids` `education` `arithmetic` `slovenian` `pwa` `phaser` `typescript` `vite` `offline-first`
 
@@ -100,7 +100,7 @@ Not yet: a profile for each child, the story chapters and bosses, multiple-choic
 ### SL: Kako namestiš igro na tablico
 
 **Android (Chrome)**
-1. Odpri `https://<user>.github.io/varuh-stevil/` v Chromu.
+1. Odpri `https://dejande.github.io/varuh-stevil/` v Chromu.
 2. Tapni meni ⋮ in izberi **Namesti aplikacijo** (ali **Dodaj na začetni zaslon**).
 3. Igra se odpre z ikone na začetnem zaslonu, tudi brez interneta.
 
@@ -123,7 +123,7 @@ Not yet: a profile for each child, the story chapters and bosses, multiple-choic
 
 ## Message to the family (example)
 
-> Naredil sem igro za vajo računanja, **Varuh števil**. Odpri `https://<user>.github.io/varuh-stevil/` na tablici in jo dodaj na začetni zaslon. Deluje tudi brez interneta, nima oglasov in ne zbira podatkov. Povejte, kaj vam je všeč in kaj ne.
+> Naredil sem igro za vajo računanja, **Varuh števil**. Odpri `https://dejande.github.io/varuh-stevil/` na tablici in jo dodaj na začetni zaslon. Deluje tudi brez interneta, nima oglasov in ne zbira podatkov. Povejte, kaj vam je všeč in kaj ne.
 
 ## Still to make
 

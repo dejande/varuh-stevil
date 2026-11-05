@@ -108,15 +108,17 @@ Strings live in `src/i18n/sl.json` and `src/i18n/en.json` as ICU MessageFormat. 
 
 `.github/workflows/deploy.yml` runs tests, builds and deploys `dist/` to GitHub Pages on every push to `main`. The production `base` is `/varuh-stevil/` (set in `vite.config.ts`), and the PWA service worker scope matches it.
 
-The GitHub repository is not created yet. To publish:
-
-1. Create the repo `varuh-stevil` on GitHub (a public repo, or a private one on a paid plan) and push `main`.
-2. In the repo settings, under **Pages**, set the source to **GitHub Actions**.
-3. The site appears at `https://<user>.github.io/varuh-stevil/`. If the repo gets a different name, change `REPO_BASE` in `vite.config.ts`.
+- **Repository:** `git@github.com:dejande/varuh-stevil.git`
+- **Site:** https://dejande.github.io/varuh-stevil/
+- **One-time setup:** in the repo settings, under **Pages**, set the source to **GitHub Actions**. If the repo is renamed, change `REPO_BASE` in `vite.config.ts`.
 
 ## Changelog
 
 Newest first. Every change to the repo adds a line here.
+
+### 2026-11-05: On GitHub
+
+- Pushed to `github.com/dejande/varuh-stevil`; the site goes to https://dejande.github.io/varuh-stevil/.
 
 ### 2026-11-05: Publishing texts
 
