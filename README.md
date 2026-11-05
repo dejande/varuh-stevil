@@ -56,8 +56,8 @@ Monster speed: **Relaxed** stops at a safe distance and only wrong answers move 
 
 Two layers protect what already works:
 
-- **Unit tests** (`tests/`, Vitest) cover the rules: every generated problem for all 120 combinations of operations, ranges and task types (40 seeds each), round quotas, retries, stars, hints, notation, plurals and the i18n check.
-- **End-to-end tests** (`e2e/`, Playwright) play the production build in Chrome, on a desktop and a phone viewport: first start and player setup, a full level in Slovene and in English with one mistake (the wrong fact must come back 3–5 problems later), Relaxed hearts, losing all hearts, the Normal-speed timeout, keyboard input, the prologue per player, the parent gate, adding/editing/switching/deleting players across reloads, the 6-player limit, and a full level in 4-choice mode. Each test starts on an empty device.
+- **Unit tests** (`tests/`, Vitest) cover the rules: every generated problem for all 120 combinations of operations, ranges and task types (40 seeds each), round quotas, retries, stars, hints, notation, plurals, the i18n and story checks, answer choices, players and storage, monster movement, and the story campaign (unlocks, the 10-star boss rule, boss fights).
+- **End-to-end tests** (`e2e/`, Playwright) play the production build in Chrome, on a desktop and a phone viewport: first start and player setup, a full level in Slovene and in English with one mistake (the wrong fact must come back 3–5 problems later), Relaxed hearts, losing all hearts, the Normal-speed timeout, keyboard input, the prologue per player, the parent gate, adding/editing/switching/deleting players across reloads, the 6-player limit, a full level in 4-choice mode, and the story: the map, unlocking the next level, the boss star requirement, a full boss fight with its outro, and the epilogue. Each test starts on an empty device.
 
 Run `npm run test:all` before every commit. CI runs both before deploying. Locally the e2e tests use the installed Google Chrome; CI installs Playwright's Chromium.
 
@@ -128,6 +128,11 @@ Strings live in `src/i18n/sl.json` and `src/i18n/en.json` as ICU MessageFormat. 
 ## Changelog
 
 Newest first. Every change to the repo adds a line here.
+
+### 2026-11-05: Notes brought up to date
+
+- `CLAUDE.md` describes the current state (milestones 1–3 live), the code map, how to push and watch deploys, and the pitfalls found on the way.
+- `docs/publishing.md` describes the story and has release notes for v0.3.0.
 
 ### 2026-11-05: Bigger battlefield
 

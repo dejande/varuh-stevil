@@ -1,6 +1,6 @@
 # Publishing texts
 
-Ready-to-paste texts for GitHub, GitHub Pages, the installed app and the family. They describe what the game does **today** (milestones 1 and 2). Update them when a milestone lands; the "Not yet" lists say what to add.
+Ready-to-paste texts for GitHub, GitHub Pages, the installed app and the family. They describe what the game does **today** (milestones 1–3, version 0.3.0). Update them when a milestone lands; the "Not yet" lists say what to add.
 
 ## GitHub repository
 
@@ -40,6 +40,8 @@ V dolini pod Triglavom so ljudje nekoč znali šteti do neskončnosti. Potem je 
 
 Proti junaku drsijo megleni škratki, vsak z računom. Pravilen odgovor poleti iz čarobne palice kot zlata številka in škratka razblini. Ob napaki igra pokaže pravilni odgovor in kratek namig, kako račun izračunati (na primer »Dopolni do 10: 8 + 5 = 8 + 2 + 3«), napačen račun pa se čez nekaj nalog vrne.
 
+- Zgodba v petih krajih: vas pod goro, jezero, kraška jama, Pohorski gozd in vrh gore, vsak s petimi stopnjami in šefom, od Velikana Kozolca do Pozabnika
+- Zvezdice za vsako stopnjo; šefa odkleneš z dovolj zvezdicami iz njegovega kraja
 - Do 6 igralcev, vsak s svojim junakom, barvami in nastavitvami
 - Za najmlajše: odgovarjanje s štirimi ponujenimi odgovori
 - Kotiček za starše, zaklenjen z računom, ki ga otroci še ne znajo
@@ -60,6 +62,8 @@ In the valley below Triglav, people could once count to infinity. Then the Forge
 
 Fog imps drift toward the hero, each carrying a sum. A right answer flies from the Keeper's staff as a golden number and dissolves the imp. After a mistake the game shows the right answer and one short strategy hint (for example "Make 10: 8 + 5 = 8 + 2 + 3"), and the sum comes back a few problems later.
 
+- A story across five places (the village, the lake, the karst cave, the great forest and the summit), each with five levels and a boss, from the Hayrack Giant to the Forgetter
+- Stars for every level; a boss opens once you have collected enough stars in its place
 - Up to 6 players, each with their own hero, colours and settings
 - For the youngest: answer by picking one of four choices
 - A parents' corner, locked with a sum the kids can't do yet
@@ -70,6 +74,32 @@ Fog imps drift toward the hero, each carrying a sum. A right answer flies from t
 - Slovene and English, with the notation each school uses (· and : in Slovene, × and ÷ in English)
 - Works offline after the first visit
 - No ads, purchases, accounts or tracking; all data stays on the device
+
+## Release notes: v0.3.0 (the story)
+
+**SL**
+
+- Zemljevid s petimi kraji: vas pod goro, jezero, kraška jama, Pohorski gozd in vrh gore. V vsakem je pet stopenj in šef.
+- Pred vsako stopnjo kratek prizor iz zgodbe, po vsakem šefu nadaljevanje, na koncu zaključek.
+- Vsak kraj ima svoje pošasti: meglene škratke, vodne duhce, kapniške goleme, lesne škrate in meglene vrane.
+- Šefi (Velikan Kozolec, Jezerski zmaj, Senčni netopir, Stari Hrast, Pozabnik) imajo 15 življenj; hiter odgovor jih udari dvakrat.
+- Do tri zvezdice za stopnjo; stopnje lahko igraš znova za več zvezdic. Šefa odkleneš z 10 zvezdicami iz njegovega kraja.
+- Napredek se shrani za vsakega igralca posebej.
+- Večje bojišče na tablicah in računalnikih.
+
+Še ne: prilagajanje šibkim računom, statistika za starše, značke, prenos igralcev na drugo napravo, zvoki.
+
+**EN**
+
+- A map with five places: the village, the lake, the karst cave, the great forest and the summit, each with five levels and a boss.
+- A short story scene before every level, what happens next after every boss, and an ending.
+- Every place has its own monsters: fog imps, water sprites, dripstone golems, wood goblins and fog crows.
+- Bosses (the Hayrack Giant, the Lake Dragon, the Shadow Bat, the Old Oak, the Forgetter) have 15 lives; a quick answer hits them twice.
+- Up to three stars per level; levels can be replayed for more. A boss opens with 10 stars from its place.
+- Progress is saved for each player.
+- A bigger battlefield on tablets and computers.
+
+Not yet: adapting to weak facts, parent stats, badges, moving players to another device, sound.
 
 ## Release notes: v0.2.0 (players)
 
