@@ -126,6 +126,11 @@ Strings live in `src/i18n/sl.json` and `src/i18n/en.json` as ICU MessageFormat. 
 
 Newest first. Every change to the repo adds a line here.
 
+### 2026-11-05: Milestone 3 started: level panels draft, design directions
+
+- `docs/story/level-panels-draft.md`: the 25 level panels (5 chapters × 5 levels, SL + EN), waiting for Dejan's approval before they are frozen.
+- `docs/design/directions.html`: three new visual directions (watercolour storybook, folk-painted beehive panels, clay toy world) next to the current look, each on the home, battle and hint screens. Waiting for Dejan's choice.
+
 ### 2026-11-05: Milestone 2, players and parents' corner
 
 - Up to 6 players, each with a name, a hero name for the story (12 characters at most), girl or boy hero, hero colours, language, answering mode, monster speed, operations, range and task types.

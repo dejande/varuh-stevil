@@ -1,0 +1,526 @@
+<meta charset="utf-8">
+<title>Varuh števil: vizualne smeri</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Alegreya:wght@700;800;900&family=Alegreya+Sans:wght@500;700;800&family=Baloo+2:wght@500;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,800;9..144,900&family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800;900&display=swap">
+<style>
+/* Layout: a design review sheet. Each direction is a band: name and idea on the left, three phone screens beside it, notes below. */
+:root {
+  --bg: #eef1f5;
+  --surface: #ffffff;
+  --fg: #1d2433;
+  --muted: #5b6577;
+  --line: #d5dbe5;
+  --accent: #3155a6;
+  --font-ui: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #12161f; --surface: #1b2130; --fg: #e8ecf4; --muted: #a3adbf; --line: #2c3446; --accent: #8fb0ff; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #12161f; --surface: #1b2130; --fg: #e8ecf4; --muted: #a3adbf; --line: #2c3446; --accent: #8fb0ff; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-ui); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.intro { max-width: 70ch; margin-bottom: 32px; }
+header.intro h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; margin: 0 0 12px; text-wrap: balance; }
+header.intro p { margin: 0 0 10px; color: var(--muted); }
+header.intro p strong { color: var(--fg); }
+
+.direction { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px; margin-bottom: 28px; display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 24px; }
+.direction.reference { opacity: 0.92; }
+.about { min-width: 0; }
+.about .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; margin-bottom: 4px; }
+.about h2 { margin: 0 0 8px; font-size: 1.6rem; line-height: 1.15; text-wrap: balance; }
+.about p { margin: 0 0 12px; color: var(--muted); }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin: 14px 0; }
+.sw { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+.sw i { width: 26px; height: 26px; border-radius: 8px; flex: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+.sw span { display: flex; flex-direction: column; line-height: 1.2; }
+.sw small { color: var(--muted); font-variant-numeric: tabular-nums; }
+.typepair { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 6px; }
+.typepair .big { font-size: 1.9rem; line-height: 1.1; }
+.typepair .small { color: var(--muted); font-size: 0.9rem; }
+.notes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; border-top: 1px solid var(--line); padding-top: 16px; }
+.notes h3 { margin: 0 0 6px; font-size: 1rem; }
+.notes ul { margin: 0; padding-left: 18px; color: var(--muted); }
+.notes li { margin-bottom: 4px; }
+.screens { min-width: 0; display: flex; gap: 18px; overflow-x: auto; padding: 4px 4px 14px; scroll-snap-type: x mandatory; }
+.screens figure { margin: 0; flex: none; scroll-snap-align: start; }
+.screens figcaption { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+
+@media (max-width: 860px) {
+  .direction { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Phone mockups (each direction paints its own world; colours are artwork, same in both themes) ---------- */
+.phone { width: 272px; height: 560px; border-radius: 34px; padding: 10px; background: #1a1d24; box-shadow: 0 10px 30px rgba(10, 20, 40, 0.25); }
+.screen { width: 100%; height: 100%; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 14px 12px; gap: 9px; position: relative; }
+.scene { position: relative; width: 100%; aspect-ratio: 2 / 1.15; overflow: hidden; flex: none; }
+.scene svg { display: block; width: 100%; height: 100%; }
+.stage { position: relative; width: 100%; aspect-ratio: 2 / 1.05; overflow: hidden; flex: none; }
+.stage svg { display: block; width: 100%; height: 100%; }
+.topbar { width: 100%; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+.pill { padding: 4px 9px 3px; white-space: nowrap; }
+.seg { display: flex; gap: 3px; }
+.seg b, .seg i { font-style: normal; padding: 3px 7px 2px; }
+.title { position: absolute; inset: 7% 0 auto; margin: 0; text-align: center; line-height: 1; }
+.greet { margin: 4px 0 0; font-size: 21px; line-height: 1.1; }
+.sub { margin: 0; font-size: 12.5px; text-align: center; max-width: 30ch; line-height: 1.35; }
+.btn { display: inline-flex; justify-content: center; align-items: center; }
+.btn.primary { min-width: 180px; padding: 11px 28px 9px; font-size: 22px; margin-top: 6px; }
+.btn.secondary { padding: 7px 18px 5px; font-size: 14px; }
+.hud { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 10.5px; }
+.hud .mid { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.track { display: flex; gap: 2px; width: 100%; max-width: 130px; }
+.track i { flex: 1; height: 7px; }
+.hearts { display: flex; gap: 2px; }
+.hearts svg { width: 17px; height: 16px; }
+.problem { font-size: 34px; line-height: 1.1; padding: 8px 20px 5px; min-width: 200px; text-align: center; font-variant-numeric: tabular-nums; }
+.keypad { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.keypad span { display: flex; align-items: center; justify-content: center; height: 46px; font-size: 22px; }
+.keypad svg { width: 22px; height: 22px; }
+.feedback { width: 100%; padding: 14px 12px 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.feedback .ans { font-size: 32px; line-height: 1.05; }
+.feedback .main { font-size: 13px; }
+.feedback .hint { font-size: 13.5px; padding: 6px 10px 5px; }
+.dim svg { filter: saturate(0.7) brightness(0.92); }
+
+/* Reference: the current alpine paper-cut look */
+.t-paper .screen { background: linear-gradient(180deg, #b9dceb, #d6ecf2 45%, #eef7f9); color: #1f2d5a; font-family: 'Baloo 2', system-ui, sans-serif; }
+.t-paper .scene, .t-paper .stage { border-radius: 16px; box-shadow: 0 4px 0 rgba(31,45,90,0.18); }
+.t-paper .title { font-weight: 800; font-size: 34px; }
+.t-paper .greet { font-weight: 800; }
+.t-paper .sub { color: #4a5a85; }
+.t-paper .pill, .t-paper .seg i, .t-paper .btn.secondary, .t-paper .keypad span, .t-paper .problem, .t-paper .feedback { background: #fff; border-radius: 12px; box-shadow: 0 3px 0 #b7c6dc; font-weight: 700; }
+.t-paper .seg b { background: #1f2d5a; color: #fff; border-radius: 12px; }
+.t-paper .btn.primary { background: #f2b035; box-shadow: 0 4px 0 #c98a17; border-radius: 14px; font-weight: 800; }
+.t-paper .problem { font-weight: 800; border-radius: 16px; }
+.t-paper .keypad span { font-weight: 800; }
+.t-paper .keypad .ok { background: #4e9a51; box-shadow: 0 3px 0 #36743a; color: #fff; }
+.t-paper .track i { background: #fff; border-radius: 4px; box-shadow: inset 0 0 0 1.2px #b7c6dc; }
+.t-paper .track i.d { background: #f2b035; box-shadow: none; }
+.t-paper .track i.c { box-shadow: inset 0 0 0 2px #1f2d5a; }
+.t-paper .hearts svg path { fill: #d2452e; }
+.t-paper .feedback { border-radius: 16px; }
+.t-paper .feedback .ans { font-weight: 800; }
+.t-paper .feedback .main { color: #4a5a85; }
+.t-paper .feedback .hint { background: #fdf0d2; border-radius: 10px; font-weight: 700; }
+
+/* 1 Pravljični akvarel */
+.t-water .screen { background: #fbf3e6; color: #3e2f4f; font-family: 'Nunito', system-ui, sans-serif; }
+.t-water .screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0 0.2 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); mix-blend-mode: multiply; }
+.t-water .scene, .t-water .stage { border-radius: 22px 26px 20px 24px; }
+.t-water .title { font-family: 'Fraunces', Georgia, serif; font-weight: 900; font-size: 33px; color: #3e2f4f; letter-spacing: -0.01em; text-shadow: 0 1px 0 rgba(255,255,255,0.6); }
+.t-water .greet { font-family: 'Fraunces', Georgia, serif; font-weight: 800; font-size: 23px; }
+.t-water .sub { color: #6e5b7d; }
+.t-water .pill, .t-water .seg i { background: rgba(255,255,255,0.7); border-radius: 999px; border: 1px solid #e6d6c4; font-weight: 700; }
+.t-water .seg b { background: #3e2f4f; color: #fbf3e6; border-radius: 999px; }
+.t-water .btn.primary { font-family: 'Fraunces', Georgia, serif; font-weight: 800; background: radial-gradient(120% 140% at 30% 20%, #f7b07d, #ee8a4d 60%, #dc7438); color: #3e2f4f; border-radius: 999px; box-shadow: 0 6px 14px rgba(220,116,56,0.35); }
+.t-water .btn.secondary { background: transparent; border: 1.5px solid #b9a6c9; border-radius: 999px; font-weight: 700; color: #5a4870; }
+.t-water .problem { font-family: 'Fraunces', Georgia, serif; font-weight: 800; background: rgba(255,255,255,0.75); border-radius: 18px 22px 16px 20px; box-shadow: 0 6px 16px rgba(110,91,125,0.15); }
+.t-water .keypad span { background: #fffdf8; border-radius: 16px 18px 15px 17px; box-shadow: 0 3px 0 #e8d8c5, 0 6px 12px rgba(110,91,125,0.08); font-weight: 800; font-family: 'Fraunces', Georgia, serif; }
+.t-water .keypad .ok { background: #8fb996; color: #fff; box-shadow: 0 3px 0 #6c9a76; }
+.t-water .keypad .er { color: #8a779a; }
+.t-water .track i { background: #f1e3d2; border-radius: 4px; }
+.t-water .track i.d { background: #ee8a4d; }
+.t-water .track i.c { box-shadow: inset 0 0 0 1.8px #3e2f4f; }
+.t-water .hearts svg path { fill: #e0697a; }
+.t-water .feedback { background: rgba(255,255,255,0.8); border-radius: 22px 18px 24px 20px; box-shadow: 0 8px 20px rgba(110,91,125,0.15); }
+.t-water .feedback .ans { font-family: 'Fraunces', Georgia, serif; font-weight: 900; color: #3e2f4f; }
+.t-water .feedback .main { color: #6e5b7d; }
+.t-water .feedback .hint { background: #fde3cf; border-radius: 12px; font-weight: 700; }
+
+/* 2 Poslikane končnice */
+.t-folk .screen { background-color: #6b4426; background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.0) 0 52px, rgba(0,0,0,0.18) 52px 54px), repeating-linear-gradient(180deg, rgba(255,255,255,0.03) 0 3px, rgba(0,0,0,0.03) 3px 7px); color: #2b1b12; font-family: 'Alegreya Sans', system-ui, sans-serif; }
+.t-folk .scene, .t-folk .stage { border-radius: 6px; }
+.t-folk .title { font-family: 'Alegreya', Georgia, serif; font-weight: 900; font-size: 32px; color: #f6ebd0; -webkit-text-stroke: 1.5px #2b1b12; paint-order: stroke fill; text-shadow: 0 3px 0 #2b1b12; }
+.t-folk .greet { font-family: 'Alegreya', Georgia, serif; font-weight: 900; color: #f6ebd0; text-shadow: 0 2px 0 #2b1b12; }
+.t-folk .sub { color: #f1dcb2; }
+.t-folk .pill, .t-folk .seg i { color: #2b1b12; background: #f6ebd0; border: 2px solid #2b1b12; border-radius: 6px; font-weight: 800; box-shadow: 2px 2px 0 #2b1b12; }
+.t-folk .seg b { background: #2f5da8; color: #f6ebd0; border: 2px solid #2b1b12; border-radius: 6px; box-shadow: 2px 2px 0 #2b1b12; }
+.t-folk .btn.primary { font-family: 'Alegreya', Georgia, serif; font-weight: 900; background: #c8372d; color: #f6ebd0; border: 3px solid #2b1b12; border-radius: 10px; box-shadow: 4px 4px 0 #2b1b12; }
+.t-folk .btn.secondary { background: #e0a526; border: 2.5px solid #2b1b12; border-radius: 8px; font-weight: 800; box-shadow: 3px 3px 0 #2b1b12; }
+.t-folk .problem { font-family: 'Alegreya', Georgia, serif; font-weight: 900; background: #f6ebd0; border: 3px solid #2b1b12; border-radius: 8px; box-shadow: 4px 4px 0 #2b1b12; position: relative; }
+.t-folk .keypad span { background: #f6ebd0; border: 2.5px solid #2b1b12; border-radius: 8px; box-shadow: 3px 3px 0 #2b1b12; font-weight: 800; font-family: 'Alegreya', Georgia, serif; }
+.t-folk .keypad .ok { background: #4c8a3f; color: #f6ebd0; }
+.t-folk .keypad .er { background: #e0a526; }
+.t-folk .hud { color: #f6ebd0; }
+.t-folk .track i { background: #f6ebd0; border: 1.5px solid #2b1b12; border-radius: 2px; }
+.t-folk .track i.d { background: #e0a526; }
+.t-folk .track i.c { background: #c8372d; }
+.t-folk .hearts svg path { fill: #c8372d; stroke: #2b1b12; stroke-width: 2; }
+.t-folk .feedback { background: #f6ebd0; border: 3px solid #2b1b12; border-radius: 10px; box-shadow: 4px 4px 0 #2b1b12; }
+.t-folk .feedback .ans { font-family: 'Alegreya', Georgia, serif; font-weight: 900; color: #2f5da8; }
+.t-folk .feedback .main { color: #5a3d28; }
+.t-folk .feedback .hint { background: #fbe3a6; border: 2px dashed #b4861a; border-radius: 6px; font-weight: 800; }
+
+/* 3 Plastelinska dolina */
+.t-clay .screen { background: radial-gradient(120% 70% at 50% 0%, #c9f1f7 0%, #e9fafb 45%, #fdf3ff 100%); color: #33305c; font-family: 'Nunito', system-ui, sans-serif; }
+.t-clay .scene, .t-clay .stage { border-radius: 26px; box-shadow: 0 10px 20px rgba(80,70,160,0.22), inset 0 -6px 0 rgba(0,0,0,0.06); }
+.t-clay .title { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 700; font-size: 34px; color: #fff; text-shadow: 0 3px 0 #6b63c9, 0 6px 10px rgba(80,70,160,0.35); }
+.t-clay .greet { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 700; }
+.t-clay .sub { color: #6a679a; }
+.t-clay .pill, .t-clay .seg i { background: #fff; border-radius: 999px; font-weight: 800; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.07), 0 4px 8px rgba(80,70,160,0.16); }
+.t-clay .seg b { background: linear-gradient(180deg, #8f86ff, #6b63c9); color: #fff; border-radius: 999px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.45), 0 4px 8px rgba(80,70,160,0.25); }
+.t-clay .btn.primary { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 700; color: #fff; background: linear-gradient(180deg, #ff9a8b, #ff6f61); border-radius: 999px; box-shadow: inset 0 4px 0 rgba(255,255,255,0.45), inset 0 -6px 0 rgba(160,40,40,0.25), 0 8px 16px rgba(255,111,97,0.4); text-shadow: 0 2px 0 rgba(160,40,40,0.35); }
+.t-clay .btn.secondary { background: #fff; border-radius: 999px; font-weight: 800; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.07), 0 5px 10px rgba(80,70,160,0.16); }
+.t-clay .problem { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 700; background: #fff; border-radius: 22px; box-shadow: inset 0 -5px 0 rgba(0,0,0,0.06), 0 8px 16px rgba(80,70,160,0.18); }
+.t-clay .keypad span { background: linear-gradient(180deg, #ffffff, #f2f0ff); border-radius: 18px; font-family: 'Fredoka', system-ui, sans-serif; font-weight: 700; box-shadow: inset 0 3px 0 #fff, inset 0 -5px 0 rgba(80,70,160,0.10), 0 5px 10px rgba(80,70,160,0.16); }
+.t-clay .keypad .ok { background: linear-gradient(180deg, #8ee07a, #58bf4f); color: #fff; box-shadow: inset 0 3px 0 rgba(255,255,255,0.45), inset 0 -5px 0 rgba(30,100,30,0.22), 0 5px 10px rgba(60,160,60,0.3); }
+.t-clay .keypad .er { color: #8b86c4; }
+.t-clay .track i { background: #fff; border-radius: 99px; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.06); }
+.t-clay .track i.d { background: linear-gradient(180deg, #ffd36b, #ffb52e); }
+.t-clay .track i.c { box-shadow: inset 0 0 0 2px #8f86ff; }
+.t-clay .hearts svg path { fill: #ff6f8a; }
+.t-clay .feedback { background: #fff; border-radius: 24px; box-shadow: inset 0 -6px 0 rgba(0,0,0,0.05), 0 10px 20px rgba(80,70,160,0.2); }
+.t-clay .feedback .ans { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 700; color: #6b63c9; }
+.t-clay .feedback .main { color: #6a679a; }
+.t-clay .feedback .hint { background: #fff3cc; border-radius: 14px; font-weight: 800; }
+
+.cta { max-width: 70ch; }
+.cta h2 { font-size: 1.4rem; margin: 8px 0; }
+.cta p { color: var(--muted); margin: 0 0 8px; }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <h1>Varuh števil: tri nove vizualne smeri</h1>
+    <p>Vsaka smer kaže iste tri zaslone z enako vsebino: <strong>domači zaslon</strong>, <strong>boj</strong> in <strong>namig po napaki</strong>. Razlikujejo se samo slog, barve in pisava, tako da je primerjava poštena.</p>
+    <p>Na vrhu je za primerjavo <strong>sedanji videz</strong>. Izberi eno smer, ali dve, ki ju lahko združim (npr. okvirje iz ene in gumbe iz druge). Najboljši sodniki so otroci: pokaži jim zaslone in naj glasujejo.</p>
+  </header>
+
+  <div id="directions"></div>
+
+  <section class="cta">
+    <h2>Kaj potem</h2>
+    <p>Ko izbereš, izbrano smer prenesem v igro: barve in pisavo v vse zaslone, slog risanja v boj, zgodbo in izbiro igralca. Testi ostanejo isti, zato se obnašanje igre ne spremeni.</p>
+    <p>Prave ilustracije (junaki, pošasti, ozadja po poglavjih) pridejo v 5. mejniku. Izbrana smer bo zanje tudi slogovni vodnik.</p>
+  </section>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="wc" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="3" seed="4" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="7" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="0.7"/>
+    </filter>
+    <filter id="wcSoft" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="9" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="10" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="3"/>
+    </filter>
+    <filter id="paperShadow" x="-5%" y="-5%" width="110%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="0" flood-color="#1f2d5a" flood-opacity="0.16"/>
+    </filter>
+    <filter id="clayShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#3b2f8f" flood-opacity="0.22"/>
+    </filter>
+    <linearGradient id="clayShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.38"/>
+      <stop offset="0.45" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#1b1460" stop-opacity="0.16"/>
+    </linearGradient>
+    <radialGradient id="waterSun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff2c9"/>
+      <stop offset="0.55" stop-color="#ffd59a" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffd59a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<script>
+/* One scene geometry (the valley below Triglav, in 800 x 400 units), painted four ways. */
+const GEO = {
+  far: 'M0 262 70 222 140 244 230 196 330 236 420 204 520 232 610 190 700 226 800 204V400H0Z',
+  triglav: 'M330 400 400 262 440 236 470 220 506 150 540 206 566 190 610 244 680 300 760 400Z',
+  snow: ['M490 182 506 150 524 186 514 180 506 190 497 180Z', 'M458 228 470 220 480 228 470 232Z', 'M556 198 566 190 578 206 568 202 560 208Z'],
+  hills: 'M0 300C120 280 220 296 330 282S560 272 640 290 760 286 800 292V400H0Z',
+  meadow: 'M0 336C140 322 300 340 440 330S680 322 800 334V400H0Z',
+};
+const circ = (cx, cy, r) => `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
+const ell = (cx, cy, rx, ry) => `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+const rect = (x, y, w, h) => `M${x} ${y}h${w}v${h}h${-w}Z`;
+
+const THEMES = {
+  paper: {
+    style: 'paper', font: "'Baloo 2'", outline: '#1f2d5a',
+    sky: ['#9fd3e6', '#e4f3f6'], sun: '#f7d774', far: '#a9bcd3', mountain: '#6e83a6', snow: '#ffffff',
+    hills: '#8fc07a', meadow: '#4e9a51', wood: '#8b5a2b', roof: '#7a3b2e', fog: '#b8b3cc',
+    cape: '#23408e', hat: '#2f6b4f', trim: '#f2b035', skin: '#f4cda5', ibex: '#d8b98c', ibexDark: '#6b4a2b',
+    ink: '#1f2d5a', blush: '#d2452e', spell: '#f2b035', flower: '#ffffff',
+  },
+  water: {
+    style: 'water', font: "'Fraunces'", outline: '#3e2f4f',
+    sky: ['#f6d5b8', '#d8d0ee'], sun: 'url(#waterSun)', far: '#b9b4d9', mountain: '#7f93b8', snow: '#fffaf2',
+    hills: '#a9c99a', meadow: '#6f9f73', wood: '#8a6346', roof: '#a8574a', fog: '#c9bfe3',
+    cape: '#4b5fa8', hat: '#5e8f63', trim: '#ee8a4d', skin: '#f6d2b3', ibex: '#dcc09c', ibexDark: '#7a5a40',
+    ink: '#3e2f4f', blush: '#e0697a', spell: '#ee8a4d', flower: '#fff4f0',
+  },
+  folk: {
+    style: 'folk', font: "'Alegreya'", outline: '#2b1b12',
+    sky: ['#f3e4b9', '#f6ebd0'], sun: '#e0a526', far: '#7ea6d9', mountain: '#2f5da8', snow: '#ffffff',
+    hills: '#6aa84f', meadow: '#2f6b2e', wood: '#7a4a26', roof: '#c8372d', fog: '#cfc4e0',
+    cape: '#c8372d', hat: '#2f5da8', trim: '#e0a526', skin: '#f2c9a0', ibex: '#e3c391', ibexDark: '#5a3418',
+    ink: '#2b1b12', blush: '#c8372d', spell: '#e0a526', flower: '#c8372d',
+  },
+  clay: {
+    style: 'clay', font: "'Fredoka'", outline: '#33305c',
+    sky: ['#8edcf0', '#d6f5fa'], sun: '#ffd36b', far: '#b7b0ff', mountain: '#8b84f0', snow: '#ffffff',
+    hills: '#a5e07a', meadow: '#5dbb55', wood: '#b07a4f', roof: '#ff8a7a', fog: '#cdbff7',
+    cape: '#ff6f61', hat: '#6b63c9', trim: '#ffd36b', skin: '#ffd7b8', ibex: '#f0cf9f', ibexDark: '#9a6a43',
+    ink: '#33305c', blush: '#ff6f8a', spell: '#ffb52e', flower: '#ffffff',
+  },
+};
+
+/* A filled shape in the theme's way of painting. */
+function shape(t, d, fill, extra = '') {
+  switch (t.style) {
+    case 'water':
+      return `<g filter="url(#wc)"><path d="${d}" fill="${fill}" ${extra}/><path d="${d}" fill="none" stroke="${t.outline}" stroke-opacity="0.18" stroke-width="2.5"/></g>`;
+    case 'folk':
+      return `<path d="${d}" fill="${fill}" stroke="${t.outline}" stroke-width="4" stroke-linejoin="round" ${extra}/>`;
+    case 'clay':
+      return `<path d="${d}" fill="${fill}" stroke="${fill}" stroke-width="7" stroke-linejoin="round" ${extra}/><path d="${d}" fill="url(#clayShade)" stroke="url(#clayShade)" stroke-width="7" stroke-linejoin="round"/>`;
+    default:
+      return `<path d="${d}" fill="${fill}" ${extra}/>`;
+  }
+}
+/* Several overlapping shapes drawn as one silhouette (outline once, around the whole). */
+function blob(t, ds, fill) {
+  if (t.style === 'folk') {
+    return ds.map((d) => `<path d="${d}" fill="${t.outline}" stroke="${t.outline}" stroke-width="8"/>`).join('') + ds.map((d) => `<path d="${d}" fill="${fill}"/>`).join('');
+  }
+  if (t.style === 'clay') {
+    return ds.map((d) => `<path d="${d}" fill="${fill}"/>`).join('') + ds.map((d) => `<path d="${d}" fill="url(#clayShade)" opacity="0.8"/>`).join('');
+  }
+  if (t.style === 'water') return `<g filter="url(#wc)">${ds.map((d) => `<path d="${d}" fill="${fill}"/>`).join('')}</g>`;
+  return ds.map((d) => `<path d="${d}" fill="${fill}"/>`).join('');
+}
+const plain = (d, fill, extra = '') => `<path d="${d}" fill="${fill}" ${extra}/>`;
+
+function sun(t) {
+  if (t.style === 'water') return `<circle cx="690" cy="110" r="70" fill="url(#waterSun)"/>`;
+  if (t.style === 'folk') {
+    const rays = Array.from({ length: 12 }, (_, i) => {
+      const a = (i * Math.PI) / 6;
+      const x = 700 + Math.cos(a) * 46, y = 104 + Math.sin(a) * 46;
+      const xl = 700 + Math.cos(a - 0.18) * 30, yl = 104 + Math.sin(a - 0.18) * 30;
+      const xr = 700 + Math.cos(a + 0.18) * 30, yr = 104 + Math.sin(a + 0.18) * 30;
+      return `<path d="M${xl} ${yl}L${x} ${y}L${xr} ${yr}Z" fill="${i % 2 ? '#c8372d' : '#e0a526'}" stroke="${t.outline}" stroke-width="3" stroke-linejoin="round"/>`;
+    }).join('');
+    return `${rays}${shape(t, circ(700, 104, 28), t.sun)}<circle cx="691" cy="100" r="3" fill="${t.outline}"/><circle cx="709" cy="100" r="3" fill="${t.outline}"/><path d="M690 112q10 8 20 0" fill="none" stroke="${t.outline}" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  if (t.style === 'clay') return `<g filter="url(#clayShadow)">${shape(t, circ(700, 104, 30), t.sun)}<ellipse cx="690" cy="92" rx="10" ry="6" fill="#fff" opacity="0.6"/></g>`;
+  return plain(circ(712, 118, 26), t.sun);
+}
+
+function clouds(t) {
+  if (t.style === 'clay') {
+    return [[160, 92], [420, 70]].map(([x, y]) => `<g filter="url(#clayShadow)">${blob(t, [circ(x - 26, y + 6, 20), circ(x, y - 4, 28), circ(x + 28, y + 6, 20), ell(x, y + 14, 50, 14)], '#ffffff')}</g>`).join('');
+  }
+  if (t.style === 'water') {
+    return `<g filter="url(#wcSoft)" opacity="0.7"><ellipse cx="200" cy="90" rx="120" ry="26" fill="#fff6ee"/><ellipse cx="470" cy="60" rx="90" ry="18" fill="#fff6ee"/></g>
+      <path d="M250 130q8-8 16 0q8-8 16 0M300 112q6-6 12 0q6-6 12 0" fill="none" stroke="${t.outline}" stroke-opacity="0.45" stroke-width="2.4" stroke-linecap="round"/>`;
+  }
+  if (t.style === 'folk') {
+    return `<g>${[[210, 92], [440, 66]].map(([x, y]) => `<path d="M${x - 60} ${y + 12}q10-30 40-20q14-26 44-8q30-6 36 28Z" fill="#ffffff" stroke="${t.outline}" stroke-width="3.5" stroke-linejoin="round"/>`).join('')}</g>`;
+  }
+  return `<g fill="#fff" opacity="0.55"><ellipse cx="250" cy="70" rx="70" ry="17"/><ellipse cx="470" cy="95" rx="60" ry="15"/></g>`;
+}
+
+function landscape(t) {
+  const shadowed = (s) => (t.style === 'paper' ? `<g filter="url(#paperShadow)">${s}</g>` : t.style === 'clay' ? `<g filter="url(#clayShadow)">${s}</g>` : s);
+  let s = `<defs><linearGradient id="sky-${t.style}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${t.sky[0]}"/><stop offset="1" stop-color="${t.sky[1]}"/></linearGradient></defs>
+    <rect width="800" height="400" fill="url(#sky-${t.style})"/>`;
+  s += sun(t) + clouds(t);
+  s += shadowed(shape(t, GEO.far, t.far));
+  s += shadowed(shape(t, GEO.triglav, t.mountain) + GEO.snow.map((d) => shape(t, d, t.snow)).join(''));
+  s += shadowed(shape(t, GEO.hills, t.hills));
+  s += kozolec(t, 648, 258);
+  s += shadowed(shape(t, GEO.meadow, t.meadow));
+  s += flowers(t);
+  return s;
+}
+
+function kozolec(t, x, y) {
+  const posts = [0, 22, 44].map((dx) => shape(t, rect(x + dx, y, 4, 30), t.wood)).join('');
+  const bars = [4, 11, 18].map((dy) => plain(rect(x, y + dy, 48, 2.5), t.wood)).join('');
+  return `${posts}${bars}${shape(t, `M${x - 6} ${y + 1} ${x + 24} ${y - 13} ${x + 54} ${y + 1}Z`, t.roof)}`;
+}
+
+function flowers(t) {
+  const spots = [[60, 362], [210, 378], [360, 360], [520, 380], [740, 366], [300, 388], [620, 392]];
+  if (t.style === 'folk') {
+    return spots.map(([x, y], i) => {
+      const c = i % 2 ? '#c8372d' : '#e0a526';
+      return `<path d="M${x} ${y + 12}V${y}" stroke="${t.outline}" stroke-width="3"/><path d="M${x} ${y + 6}q-9-2-10-9q8 0 10 6" fill="#4c8a3f" stroke="${t.outline}" stroke-width="2"/>
+        <path d="M${x - 8} ${y - 2}q0-14 8-16q8 2 8 16q-4-6-8-2q-4-4-8 2Z" fill="${c}" stroke="${t.outline}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    }).join('');
+  }
+  if (t.style === 'clay') return spots.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="7" fill="${i % 2 ? '#ff9ab0' : '#fff'}"/><circle cx="${x - 2}" cy="${y - 2}" r="2.4" fill="#fff" opacity="0.8"/>`).join('');
+  if (t.style === 'water') return `<g filter="url(#wc)">${spots.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="4" fill="${i % 2 ? '#f3a6b4' : '#fff4f0'}"/>`).join('')}</g>`;
+  return spots.slice(0, 5).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3" fill="#fff"/>`).join('');
+}
+
+function fogBand(t) {
+  const op = t.style === 'folk' ? 0.85 : 0.45;
+  const extra = t.style === 'folk' ? `stroke="${t.outline}" stroke-width="3"` : '';
+  const f = t.style === 'water' ? 'filter="url(#wcSoft)"' : '';
+  return `<g ${f} opacity="${op}"><ellipse cx="610" cy="342" rx="90" ry="18" fill="${t.fog}" ${extra}/><ellipse cx="730" cy="330" rx="100" ry="20" fill="${t.fog}" ${extra}/></g>`;
+}
+
+function rogec(t, x, y) {
+  return `<g transform="translate(${x} ${y})">
+    ${shape(t, rect(-14, -18, 5, 18), t.ibexDark)}${shape(t, rect(10, -18, 5, 18), t.ibexDark)}
+    ${blob(t, [ell(0, -24, 23, 14), ell(26, -42, 12, 10)], t.ibex)}
+    <path d="M20 -50Q22 -66 9 -67M27 -50Q29 -66 16 -67" fill="none" stroke="${t.ibexDark}" stroke-width="${t.style === 'clay' ? 5.5 : 4}" stroke-linecap="round"/>
+    <circle cx="31" cy="-44" r="2.6" fill="${t.ink}"/>
+    ${t.style === 'clay' ? '<ellipse cx="22" cy="-47" rx="4" ry="2.5" fill="#fff" opacity="0.6"/>' : ''}
+    ${plain(ell(-22, -30, 4, 3), '#fff')}
+  </g>`;
+}
+
+function keeper(t, x, y) {
+  const capeD = 'M-30 0 0-80 30 0Z';
+  const folkHearts = t.style === 'folk' ? `<path d="M0 -40c-6-8-14-2-8 4l8 7 8-7c6-6-2-12-8-4Z" fill="#f6ebd0" stroke="${t.outline}" stroke-width="2"/>` : '';
+  const shine = t.style === 'clay' ? '<ellipse cx="-8" cy="-100" rx="6" ry="4" fill="#fff" opacity="0.55"/><ellipse cx="-10" cy="-50" rx="5" ry="14" fill="#fff" opacity="0.25"/>' : '';
+  return `<g transform="translate(${x} ${y})">
+    ${shape(t, capeD, t.cape)}
+    ${plain(rect(-30, -6, 60, 6), t.trim, t.style === 'folk' ? `stroke="${t.outline}" stroke-width="2.5"` : '')}
+    ${folkHearts}
+    ${shape(t, circ(0, -92, 17), t.skin)}
+    <circle cx="-6" cy="-92" r="2.3" fill="${t.ink}"/><circle cx="6" cy="-92" r="2.3" fill="${t.ink}"/>
+    ${t.style !== 'paper' ? `<circle cx="-10" cy="-86" r="3" fill="${t.blush}" opacity="0.35"/><circle cx="10" cy="-86" r="3" fill="${t.blush}" opacity="0.35"/>` : ''}
+    ${blob(t, [ell(0, -104, 27, 5), ell(0, -114, 15, 11)], t.hat)}
+    ${plain(rect(-15, -110, 30, 4), t.trim)}
+    <path d="M12 -122l2 4 4 0-3 3 1 4-4-2-4 2 1-4-3-3 4 0Z" fill="#fff" ${t.style === 'folk' ? `stroke="${t.outline}" stroke-width="1"` : ''}/>
+    ${shape(t, rect(31, -104, 5, 104), t.wood)}
+    <circle cx="34" cy="-112" r="17" fill="${t.trim}" opacity="0.28"/>
+    ${shape(t, circ(34, -112, 9), t.trim)}
+    ${shine}
+  </g>`;
+}
+
+function imp(t, x, y, s = 1) {
+  const puffs = [circ(-26, -30, 22), circ(24, -30, 22), circ(0, -50, 30), circ(-12, -24, 22), circ(14, -22, 22)];
+  const wisps = t.style === 'folk' ? '' : `<circle cx="52" cy="-22" r="12" fill="${t.fog}" opacity="0.5"/><circle cx="70" cy="-30" r="8" fill="${t.fog}" opacity="0.35"/>`;
+  const shine = t.style === 'clay' ? '<ellipse cx="-12" cy="-66" rx="12" ry="7" fill="#fff" opacity="0.7"/>' : t.style === 'paper' ? '<circle cx="-8" cy="-62" r="10" fill="#fff" opacity="0.35"/>' : '';
+  return `<g transform="translate(${x} ${y}) scale(${s})" ${t.style === 'clay' ? 'filter="url(#clayShadow)"' : ''}>
+    ${wisps}${blob(t, puffs, t.fog)}${shine}
+    <ellipse cx="-12" cy="-42" rx="8" ry="9.5" fill="#fff" ${t.style === 'folk' ? `stroke="${t.outline}" stroke-width="2"` : ''}/><ellipse cx="12" cy="-42" rx="8" ry="9.5" fill="#fff" ${t.style === 'folk' ? `stroke="${t.outline}" stroke-width="2"` : ''}/>
+    <circle cx="-14" cy="-40" r="5" fill="${t.ink}"/><circle cx="10" cy="-40" r="5" fill="${t.ink}"/>
+    <circle cx="-12" cy="-42" r="1.6" fill="#fff"/><circle cx="12" cy="-42" r="1.6" fill="#fff"/>
+    <ellipse cx="0" cy="-24" rx="5" ry="4" fill="${t.ink}" opacity="0.75"/>
+    <circle cx="-24" cy="-30" r="4.5" fill="${t.blush}" opacity="0.4"/><circle cx="24" cy="-30" r="4.5" fill="${t.blush}" opacity="0.4"/>
+  </g>`;
+}
+
+function folkFrame(t, [vx, vy, vw, vh]) {
+  if (t.style !== 'folk') return '';
+  const R = (x, y, w, h) => [x + vx, y + vy, w, h];
+  const rosette = (x, y) => `<g transform="translate(${x} ${y})">${[0, 1, 2, 3, 4, 5].map((i) => `<ellipse cx="0" cy="-9" rx="5" ry="9" transform="rotate(${i * 60})" fill="${i % 2 ? '#c8372d' : '#e0a526'}" stroke="${t.outline}" stroke-width="2"/>`).join('')}<circle r="5" fill="#2f5da8" stroke="${t.outline}" stroke-width="2"/></g>`;
+  const box = ([x, y, w, h], extra) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" ${extra}/>`;
+  return `${box(R(6, 6, vw - 12, vh - 12), 'stroke="#7a4a26" stroke-width="14"')}
+    ${box(R(15, 15, vw - 30, vh - 30), `stroke="${t.outline}" stroke-width="3"`)}
+    ${box(R(1, 1, vw - 2, vh - 2), `stroke="${t.outline}" stroke-width="3"`)}
+    ${rosette(vx + 26, vy + 26)}${rosette(vx + vw - 26, vy + 26)}${rosette(vx + 26, vy + vh - 26)}${rosette(vx + vw - 26, vy + vh - 26)}`;
+}
+
+function spell(t, x, y, text) {
+  const stroke = t.style === 'clay' ? '#ffffff' : t.outline;
+  return `<text x="${x}" y="${y}" font-family="${t.font}, system-ui, sans-serif" font-weight="900" font-size="60" fill="${t.spell}" stroke="${stroke}" stroke-width="${t.style === 'clay' ? 8 : 7}" paint-order="stroke" text-anchor="middle">${text}</text>
+    <path d="M${x - 140} ${y + 40}Q${x - 70} ${y - 30} ${x - 20} ${y - 10}" fill="none" stroke="${t.spell}" stroke-width="5" stroke-dasharray="2 12" stroke-linecap="round" opacity="0.9"/>`;
+}
+
+function scene(t, mode) {
+  // Viewports match the scene boxes (2 : 1.15 on home, 2 : 1.05 in battle), so nothing is cropped away.
+  const vb = mode === 'home' ? [60, 30, 643, 370] : [60, 100, 571, 300];
+  const viewBox = vb.join(' ');
+  let s = landscape(t) + fogBand(t) + rogec(t, 96, 340) + keeper(t, 180, 340);
+  if (mode === 'home') s += imp(t, 560, 330);
+  if (mode === 'battle') s += imp(t, 500, 334) + spell(t, 390, 196, '13');
+  if (mode === 'hint') s += imp(t, 400, 334);
+  s += folkFrame(t, vb);
+  return `<svg viewBox="${viewBox}" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Dolina pod Triglavom: Varuh, kozliček Rogec in megleni škrat">${s}</svg>`;
+}
+
+const HEART = '<svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21 2.6 11.8A5.6 5.6 0 0 1 12 4.3a5.6 5.6 0 0 1 9.4 7.5z"/></svg>';
+const ERASE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h12v14H8l-6-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="m11 9 6 6m0-6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const OK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12.5 5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const hud = () => `<div class="hud"><span class="pill">Domov</span><span class="mid"><span>Pošast 4 od 10</span><span class="track">${'<i class="d"></i>'.repeat(3)}<i class="c"></i>${'<i></i>'.repeat(6)}</span></span><span class="hearts">${HEART}${HEART}${HEART}</span></div>`;
+
+function phones(key) {
+  const t = THEMES[key];
+  const home = `<div class="screen">
+      <div class="topbar"><span class="pill">Zamenjaj igralca</span><span class="seg"><b>Slovenščina</b><i>English</i></span></div>
+      <div class="scene">${scene(t, 'home')}<p class="title">Varuh števil</p></div>
+      <p class="greet">Živijo, Nika!</p>
+      <p class="sub">Pozabnik je pobral števila. Pomagaj jih vrniti!</p>
+      <span class="btn primary">Začni</span>
+      <span class="btn secondary">Zgodba</span>
+    </div>`;
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'er', '0', 'ok'].map((k) => (k === 'er' ? `<span class="er">${ERASE}</span>` : k === 'ok' ? `<span class="ok">${OK}</span>` : `<span>${k}</span>`)).join('');
+  const battle = `<div class="screen">${hud()}<div class="stage">${scene(t, 'battle')}</div><div class="problem">8 + 5 = 13</div><div class="keypad">${keys}</div></div>`;
+  const hint = `<div class="screen">${hud().replace('<i class="d"></i><i class="d"></i><i class="d"></i>', '<i class="d"></i><i class="d"></i><i class="d"></i>')}<div class="stage dim">${scene(t, 'hint')}</div>
+      <div class="feedback"><span class="ans">8 + 5 = 13</span><span class="main">Pravilni odgovor je 13.</span><span class="hint">Dopolni do 10: 8 + 5 = 8 + 2 + 3</span><span class="btn primary" style="min-width:150px;font-size:18px">Naprej</span></div></div>`;
+  return [['Domači zaslon', home], ['Boj: pravilen odgovor leti kot zlata številka', battle], ['Namig po napaki', hint]]
+    .map(([cap, html]) => `<figure><div class="phone t-${key}">${html}</div><figcaption>${cap}</figcaption></figure>`)
+    .join('');
+}
+
+const DIRECTIONS = [
+  {
+    key: 'paper', tag: 'Zdaj', name: 'Alpski papir', reference: true,
+    idea: 'Sedanji videz za primerjavo: ploski papirnati sloji, barve poslikanih panjskih končnic, pisava Baloo 2.',
+    colors: [['Črnilo', '#1f2d5a'], ['Med', '#f2b035'], ['Travnik', '#4e9a51'], ['Megla', '#b8b3cc'], ['Nebo', '#9fd3e6']],
+    type: ["'Baloo 2'", 'Varuh števil', 'Baloo 2 za vse'],
+    good: ['Čist in berljiv, deluje na vsaki tablici.', 'Preprosto risanje v Phaserju.'],
+    risk: ['Malo plosk; liki so bolj ikone kot junaki.', 'Manj vzdušja in toplote.'],
+    game: [],
+  },
+  {
+    key: 'water', tag: 'Smer 1', name: 'Pravljični akvarel',
+    idea: 'Slikanica, naslikana z vodenimi barvami: jutranja svetloba nad dolino, mehki robovi, zrnat papir. Najbližje temu, kar spec za umetnine zahteva ("soft painted storybook look"). Topel in miren, za mlajše otroke.',
+    colors: [['Sliva', '#3e2f4f'], ['Marelica', '#ee8a4d'], ['Jutranje nebo', '#f6d5b8'], ['Lila', '#d8d0ee'], ['Žajbelj', '#6f9f73'], ['Papir', '#fbf3e6']],
+    type: ["'Fraunces'", 'Varuh števil', 'Fraunces (pravljični serif) + Nunito'],
+    good: ['Najlepše vzdušje, občutek prave knjige.', 'Najlažje se ujema z AI-ilustracijami iz 5. mejnika.', 'Mehke barve ne utrujajo oči.'],
+    risk: ['Akvarelni filtri so na starejših tablicah počasni; v igri bi ozadja vnaprej naslikal kot slike.', 'Manj kontrasta: številke morajo ostati velike in temne.'],
+  },
+  {
+    key: 'folk', tag: 'Smer 2', name: 'Poslikane končnice',
+    idea: 'Slovenska ljudska umetnost s poslikanih panjskih končnic: debele temne obrobe, močne barve, tulipani, srčki, rozete in lesen okvir okoli vsake slike. Sonce ima obraz. Gumbi so kot pobarvane lesene deščice.',
+    colors: [['Kobalt', '#2f5da8'], ['Cinober', '#c8372d'], ['Oker', '#e0a526'], ['Listna zelena', '#2f6b2e'], ['Les', '#7a4a26'], ['Omet', '#f6ebd0']],
+    type: ["'Alegreya'", 'Varuh števil', 'Alegreya (knjižni, krepki) + Alegreya Sans'],
+    good: ['Najbolj slovensko in najbolj svoje; ne izgleda kot nobena druga igra.', 'Obrobe naredijo like zelo berljive tudi na majhnem zaslonu.', 'Enostavno risanje: ploske barve in črte, hitro na vsaki tablici.'],
+    risk: ['Bolj natrpano; paziti moram, da okraski ne motijo računanja.', 'Rjavo leseno ozadje je temnejše od ostalih smeri.'],
+  },
+  {
+    key: 'clay', tag: 'Smer 3', name: 'Plastelinska dolina',
+    idea: 'Svet iz plastelina: vse je napihnjeno in okroglo, s svetlimi odbleski in mehkimi sencami, kot igrače na mizi. Sladke, a usklajene barve. Gumbi so kot bonboni, ki se ob pritisku pogreznejo.',
+    colors: [['Vijolična', '#6b63c9'], ['Koralna', '#ff6f61'], ['Limeta', '#5dbb55'], ['Sončna', '#ffd36b'], ['Meta', '#c9f1f7'], ['Megla', '#cdbff7']],
+    type: ["'Fredoka'", 'Varuh števil', 'Fredoka (okrogla) + Nunito'],
+    good: ['Otrokom najbolj domače: tako izgledajo sodobne otroške igre.', 'Veliki, "pritiskljivi" gumbi so zelo jasni.', 'Senčenje je poceni: preliva in odbleski delujejo hitro.'],
+    risk: ['Manj "naša dolina", bolj splošno igračkasto.', 'Lahko hitro postane preveč sladko; barve moram držati na vajetih.'],
+  },
+];
+
+document.getElementById('directions').innerHTML = DIRECTIONS.map((d) => `
+  <section class="direction ${d.reference ? 'reference' : ''}" id="${d.key}">
+    <div class="about">
+      <span class="tag">${d.tag}</span>
+      <h2>${d.name}</h2>
+      <p>${d.idea}</p>
+      <div class="swatches">${d.colors.map(([n, c]) => `<div class="sw"><i style="background:${c}"></i><span>${n}<small>${c}</small></span></div>`).join('')}</div>
+      <div class="typepair"><div class="big" style="font-family:${d.type[0]}, Georgia, serif; font-weight:800">${d.type[1]} 8 + 5</div><div class="small">${d.type[2]}</div></div>
+    </div>
+    <div class="screens">${phones(d.key)}</div>
+    <div class="notes">
+      <div><h3>Dobro</h3><ul>${d.good.map((x) => `<li>${x}</li>`).join('')}</ul></div>
+      <div><h3>Pazi</h3><ul>${d.risk.map((x) => `<li>${x}</li>`).join('')}</ul></div>
+    </div>
+  </section>`).join('');
+</script>

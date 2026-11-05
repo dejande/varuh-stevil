@@ -35,7 +35,9 @@ Battle header has a segmented level progress bar. Story levels don't exist yet, 
 ## Next
 
 1. **GitHub:** repo `git@github.com:dejande/varuh-stevil.git`, site https://dejande.github.io/varuh-stevil/. Pushing needs SSH keys, which the Claude sandbox can't read: push from the Terminal panel. Push only when Dejan asks.
-2. **Milestone 3:** chapter map, 30 levels, bosses, frozen story text, stars and unlocks. Draft the per-level panel text (5 × 5, SL + EN) first; Dejan approves it before it is frozen.
+2. **Milestone 3 (started 2026-11-05):** chapter map, 30 levels, bosses, frozen story text, stars and unlocks.
+   - Level panels drafted in `docs/story/level-panels-draft.md`; waiting for Dejan's approval (and his answers to the open points at the bottom). Only after approval do they go into the story JSON files.
+   - Visual direction: Dejan asked for nicer graphics. `docs/design/directions.html` (published as a private artifact: https://claude.ai/artifact/AkeW8ozKhrpqYEft3sw8Ar) shows watercolour, folk-painted panels and clay. Wait for his choice, then restyle the whole game in it before building the chapter map, so the map is drawn once.
 3. **Milestone 4:** adaptive layer (weak facts, speed ±20%), parent stats, badges, export/import.
 4. **Milestone 5:** Android APK via Capacitor on GitHub Releases, art and sound pass.
 
