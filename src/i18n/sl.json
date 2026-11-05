@@ -103,5 +103,17 @@
   "editor.nameRequired": "Vpiši ime.",
   "editor.save": "Shrani",
   "editor.cancel": "Prekliči",
-  "battle.choicesLabel": "Izberi odgovor"
+  "battle.choicesLabel": "Izberi odgovor",
+  "home.adventure": "Na pot!",
+  "map.title": "Zemljevid",
+  "map.prologue": "Uvod",
+  "map.locked": "zaklenjeno",
+  "map.chapterLocked": "Odpre se, ko premagaš šefa prejšnjega kraja.",
+  "map.bossNeeds": "Za šefa zberi še {count, plural, one {# zvezdico} two {# zvezdici} few {# zvezdice} other {# zvezdic}}.",
+  "level.title": "Stopnja {n}",
+  "boss.tip": "Šef ima 15 življenj. Vsak pravilni odgovor ga udari, hiter odgovor kar dvakrat.",
+  "battle.bossHp": "Šefu ostane še {hp} od {max} življenj.",
+  "result.next": "Naprej",
+  "result.map": "Zemljevid",
+  "story.toMap": "Na zemljevid"
 }

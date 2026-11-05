@@ -31,6 +31,10 @@ export const ALL_INPUT_MODES: readonly InputMode[] = ['keypad', 'choices'];
 
 export interface ProfileProgress {
   prologueSeen: boolean;
+  /** Best stars (1–3) per finished story level, keyed by levelId (e.g. "c1l3", "c1boss"). */
+  stars: Record<string, number>;
+  /** The last boss is beaten and the epilogue was shown. */
+  storyDone: boolean;
 }
 
 export interface Profile {

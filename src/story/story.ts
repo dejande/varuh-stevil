@@ -11,6 +11,11 @@ export type StoryKey = keyof typeof en;
 
 const STORIES: Record<Lang, Record<StoryKey, string[]>> = { sl, en };
 
+/** Chapter and boss names, in chapter order. */
+export function storyNames(lang: Lang): { chapters: string[]; bosses: string[] } {
+  return { chapters: STORIES[lang].chapterNames, bosses: STORIES[lang].bossNames };
+}
+
 export function storyPanels(lang: Lang, key: StoryKey, hero: string, gender: Gender): string[] {
   return STORIES[lang][key].map((src) => String(new IntlMessageFormat(src, lang).format({ hero, gender })));
 }

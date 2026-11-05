@@ -941,3 +941,222 @@ input[type='text']:focus {
     0 0 0 3px var(--ink),
     0 4px 0 var(--paper-edge);
 }
+
+/* Chapter map */
+.map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.map h1 {
+  margin: 0;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.total-stars,
+.chapter-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+}
+
+.total-stars svg,
+.chapter-stars svg {
+  width: 20px;
+  height: 20px;
+}
+
+.total-stars path,
+.chapter-stars path {
+  fill: var(--honey);
+  stroke: var(--honey-edge);
+  stroke-width: 1.5;
+}
+
+.chapter {
+  width: 100%;
+  max-width: 640px;
+  background: var(--paper);
+  border-radius: var(--radius-card);
+  box-shadow: 0 5px 0 var(--paper-edge);
+  overflow: hidden;
+  padding-bottom: 14px;
+}
+
+.chapter.locked .chapter-banner {
+  filter: grayscale(0.8) brightness(0.9);
+}
+
+.chapter-banner {
+  aspect-ratio: 400 / 100;
+}
+
+.chapter-banner svg,
+.stage-intro .story-scene svg {
+  width: 100%;
+  height: 100%;
+}
+
+.chapter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 4px;
+}
+
+.chapter-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.nodes {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  padding: 8px 12px 0;
+}
+
+.node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  padding: 0;
+}
+
+.node-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(52px, 12vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--sky);
+  box-shadow: 0 4px 0 var(--paper-edge);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.node-face svg {
+  width: 55%;
+  height: 55%;
+}
+
+.node.boss .node-face {
+  background: var(--ink);
+  color: var(--honey);
+  box-shadow: 0 4px 0 #0f1838;
+}
+
+.node.current .node-face {
+  background: var(--honey);
+  box-shadow: 0 4px 0 var(--honey-edge), 0 0 0 4px rgba(242, 176, 53, 0.35);
+}
+
+.node.boss.current .node-face {
+  color: var(--ink);
+}
+
+.node:disabled .node-face {
+  background: #e6ecf3;
+  color: var(--ink-soft);
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+.node:disabled {
+  opacity: 1;
+}
+
+.node:not(:disabled):active .node-face {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--paper-edge);
+}
+
+.mini-stars {
+  display: flex;
+  gap: 1px;
+}
+
+.mini-stars i {
+  display: block;
+  width: 13px;
+  height: 13px;
+}
+
+.mini-stars svg {
+  width: 100%;
+  height: 100%;
+}
+
+.mini-stars path {
+  fill: #e6ecf3;
+}
+
+.mini-stars i.on path {
+  fill: var(--honey);
+}
+
+.chapter-note {
+  margin: 10px 16px 0;
+  color: var(--ink-soft);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Level intro */
+.stage-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.stage-intro .story-scene {
+  aspect-ratio: 400 / 140;
+}
+
+.stage-place {
+  margin: 0;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.stage-intro h1 {
+  margin: -6px 0 0;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stage-intro .best .mini-stars i {
+  width: 22px;
+  height: 22px;
+}
+
+/* Boss health in the battle header */
+.track.boss-hp {
+  height: 12px;
+  background: var(--paper);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1.5px var(--paper-edge);
+  overflow: hidden;
+}
+
+.track.boss-hp .hp {
+  display: block;
+  height: 100%;
+  background: var(--berry);
+  transition: width 300ms ease;
+}

@@ -81,6 +81,43 @@ export async function startPractice(page: Page, s: Setup & Partial<Player>): Pro
   await expect(page.locator('.problem')).toContainText('?');
 }
 
+/** Sets the active player's story stars directly in IndexedDB (to reach later chapters quickly), then reloads. */
+export async function seedStars(page: Page, stars: Record<string, number>): Promise<void> {
+  await page.evaluate(async (stars) => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const r = indexedDB.open('varuh-stevil', 1);
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+    });
+    const meta = await new Promise<{ activeProfileId: string }>((resolve) => {
+      const r = db.transaction('meta').objectStore('meta').get('meta');
+      r.onsuccess = () => resolve(r.result);
+    });
+    const profile = await new Promise<{ progress: { stars: Record<string, number> } }>((resolve) => {
+      const r = db.transaction('profiles').objectStore('profiles').get(meta.activeProfileId);
+      r.onsuccess = () => resolve(r.result);
+    });
+    profile.progress.stars = stars;
+    await new Promise<void>((resolve) => {
+      const tx = db.transaction('profiles', 'readwrite');
+      tx.objectStore('profiles').put(profile);
+      tx.oncomplete = () => resolve();
+    });
+    db.close();
+  }, stars);
+  await page.reload();
+}
+
+/** All five levels of the given chapters finished with the given stars, and their bosses beaten. */
+export function chaptersDone(chapters: number[], levelStars = 3): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const c of chapters) {
+    for (let l = 1; l <= 5; l++) out[`c${c}l${l}`] = levelStars;
+    out[`c${c}boss`] = 2;
+  }
+  return out;
+}
+
 /** Opens the parents' corner from the current screen: hold for 3 s, then solve the multiplication. */
 export async function passGate(page: Page): Promise<void> {
   await page.locator('[data-action=parents]').click();

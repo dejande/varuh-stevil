@@ -10,6 +10,8 @@ export const RELAXED_STOP = 0.55;
 export const RELAXED_STEP = 0.15;
 export const TIMED_STEP = 0.25;
 export const WALK_IN_SECONDS = 2.5;
+/** A boss hit by a correct answer is pushed back this far. */
+export const BOSS_KNOCKBACK = 0.2;
 
 export class MonsterApproach {
   progress = 0;
@@ -52,6 +54,20 @@ export class MonsterApproach {
   newProblem(): void {
     if (this.seconds === null || this.reached) return;
     this.speedPerSec = (1 - this.progress) / this.seconds;
+  }
+
+  /** A boss took a hit: it staggers back (Relaxed: its stop point moves back too, never behind the start). */
+  knockBack(amount = BOSS_KNOCKBACK): void {
+    this.progress = Math.max(0, this.progress - amount);
+    if (this.relaxed) this.limit = Math.max(RELAXED_STOP, this.limit - amount);
+  }
+
+  /** A boss that reached the hero goes back to where it started and approaches again. */
+  restart(): void {
+    const fresh = new MonsterApproach(this.seconds);
+    this.progress = fresh.progress;
+    this.limit = fresh.limit;
+    this.newProblem();
   }
 
   /** Seconds until the monster reaches the hero at the current speed, or null when it is waiting (Relaxed). */

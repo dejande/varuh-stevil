@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { BOSS_HP, type Stage } from '../core/campaign';
 import { makeChoices } from '../core/choices';
 import { formatProblem } from '../core/format';
 import { pickHint } from '../core/hints';
@@ -8,12 +9,15 @@ import { targetSeconds } from '../core/speed';
 import type { Profile } from '../core/types';
 import { translate, type MessageKey, type Values } from '../i18n/i18n';
 import { FONT_FAMILY } from '../theme';
+import { storyNames } from '../story/story';
 import { BattleScene, HEIGHT, WIDTH } from './BattleScene';
 
 export interface BattleOutcome {
   won: boolean;
   stars: number;
   mistakes: number;
+  /** The story stage that was played, or undefined for Practice. */
+  stage?: Stage;
 }
 
 const HOME_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z" fill="currentColor"/></svg>';
@@ -31,6 +35,8 @@ export class Battle {
   private readonly session: LevelSession;
   private readonly scene: BattleScene;
   private readonly choicesMode: boolean;
+  private readonly boss: boolean;
+  private problemStart = 0;
   private game?: Phaser.Game;
   private input = '';
   private busy = true;
@@ -54,9 +60,11 @@ export class Battle {
     private readonly profile: Profile,
     private readonly onDone: (outcome: BattleOutcome) => void,
     private readonly onHome: () => void,
+    private readonly stage?: Stage,
   ) {
-    this.session = new LevelSession(profile.settings, Math.random);
-    this.scene = new BattleScene(heroLook(profile.look));
+    this.boss = stage?.level === 'boss';
+    this.session = new LevelSession(profile.settings, Math.random, this.boss ? { bossHp: BOSS_HP } : {});
+    this.scene = new BattleScene(heroLook(profile.look), { chapter: stage?.chapter ?? 1, boss: this.boss });
     this.choicesMode = profile.inputMode === 'choices';
     this.maxDigits = String(profile.settings.range).length;
     this.el = this.render(host);
@@ -100,7 +108,7 @@ export class Battle {
           <button class="btn-small" data-action="home">${HOME_ICON}<span>${this.t('battle.home')}</span></button>
           <div class="level-progress">
             <span class="progress"></span>
-            <div class="track" aria-hidden="true"></div>
+            <div class="track ${this.boss ? 'boss-hp' : ''}" aria-hidden="true"></div>
           </div>
           <span class="hearts" role="img"></span>
         </header>
@@ -161,6 +169,13 @@ export class Battle {
     this.updateProblem();
   }
 
+  /** Under the target time counts as fast (spec §2); Relaxed uses the Normal time for this. */
+  private answeredFast(): boolean {
+    const speed = this.profile.speed === 'relaxed' ? 'normal' : this.profile.speed;
+    const target = targetSeconds(this.profile.settings.range, speed) ?? Infinity;
+    return (performance.now() - this.problemStart) / 1000 < target;
+  }
+
   private choose(value: number): void {
     if (this.busy || this.feedbackOpen) return;
     this.input = String(value);
@@ -178,6 +193,20 @@ export class Battle {
 
   private updateHud(): void {
     const s = this.session;
+    if (this.boss) {
+      const name = storyNames(this.profile.lang).bosses[(this.stage?.chapter ?? 1) - 1];
+      this.el.progress.textContent = `${name} ${s.bossHp}/${s.maxBossHp}`;
+      this.el.track.innerHTML = `<span class="hp" style="width:${(100 * s.bossHp) / s.maxBossHp}%"></span>`;
+      this.el.track.setAttribute('aria-label', this.t('battle.bossHp', { hp: s.bossHp, max: s.maxBossHp }));
+    } else {
+      this.updateTrack();
+    }
+    this.el.hearts.innerHTML = [0, 1, 2].map((i) => heartSvg(i < s.hearts)).join('');
+    this.el.hearts.setAttribute('aria-label', this.t('battle.hearts', { count: s.hearts }));
+  }
+
+  private updateTrack(): void {
+    const s = this.session;
     const total = s.defeated + s.remaining;
     const current = Math.min(s.defeated + 1, total);
     this.el.progress.textContent = this.t('battle.progress', { done: current, total });
@@ -185,8 +214,6 @@ export class Battle {
       const state = i < s.defeated ? 'done' : i === s.defeated && s.remaining > 0 ? 'current' : 'todo';
       return `<span class="seg ${state}"></span>`;
     }).join('');
-    this.el.hearts.innerHTML = [0, 1, 2].map((i) => heartSvg(i < s.hearts)).join('');
-    this.el.hearts.setAttribute('aria-label', this.t('battle.hearts', { count: s.hearts }));
   }
 
   private updateProblem(): void {
@@ -206,16 +233,24 @@ export class Battle {
     this.updateHud();
     this.updateProblem();
     this.renderChoices();
+    this.problemStart = performance.now();
     this.busy = false;
   }
 
   private async submit(): Promise<void> {
     if (this.input === '' || this.session.state !== 'playing') return;
     this.busy = true;
-    const result = this.session.answer(Number(this.input));
+    const result = this.session.answer(Number(this.input), { fast: this.answeredFast() });
     if (result.correct) {
       this.el.problem.classList.add('correct');
       this.updateHud();
+      if (this.boss && !this.session.isWon()) {
+        await this.scene.hitBoss(String(result.expected), result.damage);
+        this.el.problem.classList.remove('correct');
+        this.scene.newProblem();
+        this.nextProblem();
+        return;
+      }
       await this.scene.defeatMonster(String(result.expected));
       this.el.problem.classList.remove('correct');
       if (this.session.isWon()) return this.finish();
@@ -227,7 +262,7 @@ export class Battle {
       this.session.loseHeart();
       this.updateHud();
       await this.scene.hitHero();
-      this.monsterGone = true;
+      this.monsterGone = !this.boss;
     }
     this.showFeedback(result, 'feedback.wrong');
   }
@@ -242,7 +277,7 @@ export class Battle {
     this.session.loseHeart();
     this.updateHud();
     await this.scene.hitHero();
-    this.monsterGone = true;
+    this.monsterGone = !this.boss;
     this.showFeedback(result, 'feedback.timeout');
   }
 
@@ -282,6 +317,6 @@ export class Battle {
 
   private finish(): void {
     const s = this.session;
-    this.onDone({ won: s.state === 'won', stars: s.stars, mistakes: s.mistakes });
+    this.onDone({ won: s.state === 'won', stars: s.stars, mistakes: s.mistakes, stage: this.stage });
   }
 }

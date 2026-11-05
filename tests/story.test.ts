@@ -19,6 +19,28 @@ describe('prologue', () => {
     expect(stories.en.prologue.join(' ')).toBe(specPrologue('EN'));
   });
 
+  it('the epilogue matches the spec word for word', () => {
+    const spec = readFileSync(new URL('../docs/spec.md', import.meta.url), 'utf8');
+    const epilogue = spec.slice(spec.indexOf('### Epilogue'));
+    const line = (lang: string) => epilogue.split('\n').find((l) => l.startsWith(`- **${lang}:**`))!.replace(`- **${lang}:** `, '').replace(/ \(This line.*\)$/, '').trim();
+    const stories = loadStories();
+    expect(stories.sl.epilogue.join(' ')).toBe(line('SL'));
+    expect(stories.en.epilogue.join(' ')).toBe(line('EN'));
+  });
+
+  it('has 5 chapters with 5 panels each, an outro per boss, and the names', () => {
+    const stories = loadStories();
+    for (const lang of ['sl', 'en'] as const) {
+      const st = stories[lang];
+      expect(st.chapterNames).toHaveLength(5);
+      expect(st.bossNames).toHaveLength(5);
+      for (let c = 1; c <= 5; c++) {
+        expect(st[`chapter${c}`]).toHaveLength(5);
+        expect(st[`outro${c}`].length).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+
   it('fills in the hero name and the Slovene gender forms', () => {
     const girl = storyPanels('sl', 'prologue', 'Nika', 'girl');
     expect(girl[3]).toBe('Kozliček Rogec pride k tebi: »Nika, ti si zadnja Varuhinja števil. Pomagaj nam!«');

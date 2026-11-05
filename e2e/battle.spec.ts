@@ -9,7 +9,8 @@ test.describe('home screen', () => {
     await page.locator('input[name=lang][value=en]').check({ force: true });
     await expect(page.locator('h1')).toHaveText('Keeper of Numbers');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.locator('[data-action=start]')).toHaveText('Start');
+    await expect(page.locator('[data-action=map]')).toHaveText('Adventure!');
+    await expect(page.locator('[data-action=start]')).toHaveText('Practice');
     await page.reload();
     await expect(page.locator('h1')).toHaveText('Keeper of Numbers');
   });

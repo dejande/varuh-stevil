@@ -23,17 +23,17 @@ export function renderHome(app: App): void {
       </div>
       <p class="greeting">${escapeHtml(app.t('home.greeting'))}</p>
       <p class="subtitle">${app.t('app.subtitle')}</p>
-      <button type="button" class="btn-primary btn-big btn-start" data-action="start">${app.t('home.play')}</button>
+      <button type="button" class="btn-primary btn-big btn-start" data-action="map">${app.t('home.adventure')}</button>
       <div class="home-links">
-        <button type="button" class="btn-secondary" data-action="story">${app.t('home.story')}</button>
+        <button type="button" class="btn-secondary" data-action="start">${app.t('home.practice')}</button>
         <button type="button" class="btn-link" data-action="parents">${ICONS.lock}<span>${app.t('picker.parents')}</span></button>
       </div>
     </section>`,
     p.lang,
   );
   const root = app.root;
+  root.querySelector('[data-action="map"]')!.addEventListener('click', () => app.openMap());
   root.querySelector('[data-action="start"]')!.addEventListener('click', () => void app.startBattle());
-  root.querySelector('[data-action="story"]')!.addEventListener('click', () => app.showPrologue());
   root.querySelector('[data-action="switch"]')!.addEventListener('click', () => void app.switchPlayer());
   root.querySelector('[data-action="parents"]')!.addEventListener('click', () => app.openParents(() => renderHome(app)));
   root.querySelector('.lang-switch')!.addEventListener('change', async (e) => {

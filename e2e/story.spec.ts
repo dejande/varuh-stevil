@@ -18,14 +18,15 @@ test('a new player sees the prologue with their hero name, once', async ({ page 
   await expect(page.locator('.story')).toHaveCount(0);
 });
 
-test('a boy hero in English, and the Story button replays the prologue', async ({ page }) => {
+test('a boy hero in English, and the map replays the prologue', async ({ page }) => {
   await createFirstPlayer(page, { name: 'Žan', gender: 'boy', lang: 'en' });
+  await page.locator('[data-action=map]').click();
   await page.locator('[data-action=story]').click();
   await expect(page.locator('.story-text')).toHaveText('In the valley below Triglav, people could once count to infinity.');
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('.story-text')).toContainText('the Forgetter');
   await page.locator('[data-action=skip]').click();
-  await expect(page.locator('.greeting')).toHaveText('Hi, Žan!');
+  await expect(page.locator('.map h1')).toHaveText('Map');
 });
 
 test('Slovene boy hero gets the masculine form', async ({ page }) => {

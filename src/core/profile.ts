@@ -1,4 +1,4 @@
-import { ALL_INPUT_MODES, ALL_LANGS, ALL_OPS, ALL_RANGES, ALL_SPEEDS, type Gender, type Lang, type Op, type Profile, type Range } from './types';
+import { ALL_INPUT_MODES, ALL_LANGS, ALL_OPS, ALL_RANGES, ALL_SPEEDS, type Gender, type Lang, type Op, type Profile, type ProfileProgress, type Range } from './types';
 
 export const MAX_PROFILES = 6;
 export const MAX_NAME_LENGTH = 20;
@@ -66,12 +66,25 @@ export function newId(): string {
 }
 
 export function createProfile(input: ProfileInput, now = Date.now()): Profile {
-  return { ...input, id: newId(), progress: { prologueSeen: false }, createdAt: now };
+  return { ...input, id: newId(), progress: emptyProgress(), createdAt: now };
+}
+
+export function emptyProgress(): ProfileProgress {
+  return { prologueSeen: false, stars: {}, storyDone: false };
 }
 
 /** Story progress and (later) statistics go back to the start; settings stay. */
 export function resetProgress(p: Profile): Profile {
-  return { ...p, progress: { prologueSeen: false } };
+  return { ...p, progress: emptyProgress() };
+}
+
+function sanitizeStars(raw: unknown): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (/^c[1-9]\d*(l[1-9]\d*|boss)$/.test(key) && typeof value === 'number' && value >= 1) out[key] = Math.min(3, Math.floor(value));
+  }
+  return out;
 }
 
 const pickOne = <T>(value: unknown, allowed: readonly T[], fallback: T): T => (allowed.includes(value as T) ? (value as T) : fallback);
@@ -103,7 +116,11 @@ export function sanitizeProfile(raw: unknown): Profile | null {
       range: pickOne<Range>(s.range, ALL_RANGES, d.settings.range),
       missingNumber: typeof s.missingNumber === 'boolean' ? s.missingNumber : d.settings.missingNumber,
     },
-    progress: { prologueSeen: progress.prologueSeen === true },
+    progress: {
+      prologueSeen: progress.prologueSeen === true,
+      stars: sanitizeStars(progress.stars),
+      storyDone: progress.storyDone === true,
+    },
     createdAt: typeof r.createdAt === 'number' ? r.createdAt : 0,
   };
 }

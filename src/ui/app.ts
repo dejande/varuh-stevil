@@ -1,12 +1,14 @@
+import { nextStage, recordStars, type Stage } from '../core/campaign';
 import type { Lang, Profile } from '../core/types';
 import { Battle, type BattleOutcome } from '../game/battle';
 import { translate, type MessageKey, type Values } from '../i18n/i18n';
 import { DEFAULT_META, openStore, type Meta, type ProfileStore } from '../storage/store';
 import { renderHome } from './home';
+import { renderMap, renderStageIntro } from './map';
 import { renderEditor, renderGate, renderParentArea } from './parent';
 import { renderPicker } from './picker';
 import { renderResult } from './result';
-import { renderPrologue } from './story';
+import { renderEpilogue, renderOutro, renderPrologue } from './story';
 
 /** App shell: state, storage and navigation between screens. Screens live in their own files. */
 export class App {
@@ -118,7 +120,11 @@ export class App {
     else this.route();
   }
 
-  showPrologue(): void {
+  private afterPrologue: (() => void) | null = null;
+
+  /** Replays the prologue; `after` is where it leads (the home screen by default). */
+  showPrologue(after?: () => void): void {
+    this.afterPrologue = after ?? null;
     renderPrologue(this);
   }
 
@@ -126,7 +132,35 @@ export class App {
     if (this.active && !this.active.progress.prologueSeen) {
       await this.saveProfile({ ...this.active, progress: { ...this.active.progress, prologueSeen: true } });
     }
-    renderHome(this);
+    const after = this.afterPrologue;
+    this.afterPrologue = null;
+    if (after) after();
+    else renderHome(this);
+  }
+
+  openMap(): void {
+    renderMap(this);
+  }
+
+  openStage(stage: Stage): void {
+    renderStageIntro(this, stage);
+  }
+
+  /** After a won story stage: the next level's intro, or the outro (and epilogue) after a boss. */
+  continueStory(stage: Stage): void {
+    if (stage.level !== 'boss') {
+      const next = nextStage(stage);
+      return next ? this.openStage(next) : this.openMap();
+    }
+    renderOutro(this, stage.chapter, () => {
+      if (stage.chapter < 5) return this.openStage(nextStage(stage)!);
+      renderEpilogue(this, async () => {
+        if (this.active && !this.active.progress.storyDone) {
+          await this.saveProfile({ ...this.active, progress: { ...this.active.progress, storyDone: true } });
+        }
+        this.openMap();
+      });
+    });
   }
 
   /** Parents' corner, behind the gate. `back` is where Cancel and Done return to. */
@@ -134,16 +168,22 @@ export class App {
     renderGate(this, () => renderParentArea(this, back), back);
   }
 
-  async startBattle(): Promise<void> {
+  /** Practice without a stage; a story level or boss with one. */
+  async startBattle(stage?: Stage): Promise<void> {
     const profile = this.active;
     if (!profile) return this.route();
     this.leave();
-    this.battle = new Battle(this.root, profile, (o) => this.showResult(o), () => this.goHome());
+    const back = stage ? () => this.openMap() : () => this.goHome();
+    this.battle = new Battle(this.root, profile, (o) => void this.showResult(o), back, stage);
     document.documentElement.lang = profile.lang;
     await this.battle.start();
   }
 
-  private showResult(outcome: BattleOutcome): void {
+  private async showResult(outcome: BattleOutcome): Promise<void> {
+    if (outcome.stage && outcome.won && this.active) {
+      const progress = recordStars(this.active.progress, outcome.stage, outcome.stars);
+      if (progress !== this.active.progress) await this.saveProfile({ ...this.active, progress });
+    }
     renderResult(this, outcome);
   }
 }

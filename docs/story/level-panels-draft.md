@@ -1,6 +1,6 @@
 # Level panels: draft for approval
 
-**Status:** draft, 2026-11-05. Not frozen. Dejan reads, changes what he wants, and approves; then the text moves into `src/story/story.sl.json` and `story.en.json` and is frozen (spec §8).
+**Status:** draft, 2026-11-05. Not frozen. The game already shows this text (in `src/story/story.sl.json` and `story.en.json`) so the levels can be built and tested; it is not pushed to the live site until Dejan approves it. After approval it is frozen (spec §8), and changes come only from Dejan.
 
 How to review: edit the lines directly in this file, or tell Claude which ones to change. Mark the whole file approved by changing the status line above to "approved".
 
@@ -71,6 +71,20 @@ Boss: Stari Hrast / the Old Oak. After the boss he shows the path to the mountai
 | 5 | {hero}, to je Pozabnik! Ribica posveti, Rogec se postavi ob tebe. Čas je. | {hero}, it's the Forgetter! Ribica shines her light, and Rogec stands by your side. It's time. |
 
 Boss: Pozabnik / the Forgetter. After the boss comes the frozen ending from the spec, then the epilogue.
+
+## After each boss (also a draft)
+
+The spec fixes what happens after each boss but gives Slovene text only for chapter 1's quote. These panels put it into words in both languages; they need approval too. The epilogue is taken word for word from the spec.
+
+| Boss | Slovenščina | English |
+|---|---|---|
+| Velikan Kozolec | Megla se razkadi in Velikan Kozolec se nasmehne: »Spet vem, koliko snopov imam!« Vas pod goro spet šteje. | The fog clears and the Hayrack Giant smiles: "I know how many sheaves I have again!" The village counts again. |
+| Jezerski zmaj | Zmajeve luske se spet svetijo. Jezerski zmaj ti posodi čoln, da prepluješ jezero. | The dragon's scales shine again. The Lake Dragon lends you a boat to cross the lake. |
+| Senčni netopir | V jamo se vrne svetloba. Iz reke prileze mala človeška ribica in vama posveti. / Ime ji je Ribica in odslej gre z vama. | Light returns to the cave. A little olm crawls out of the river and lights the way. / Her name is Ribica, and from now on she comes with you. |
+| Stari Hrast | Stari Hrast se spomni gozdnih poti. S koreninami ti pokaže stezo proti gori. | The Old Oak remembers the forest's paths. With its roots it shows you the trail to the mountain. |
+| Pozabnik | Megla se dvigne. Pozabnik prizna, da je bil osamljen, ker ga nihče ni štel med prijatelje. / Ti ga šteješ med prijatelje in Pozabnik vrne vsa števila. | The fog lifts. The Forgetter admits he was lonely, because no one ever counted him among their friends. / You count him in, and he gives all the numbers back. |
+
+A "/" separates two panels.
 
 ## Open points for Dejan
 

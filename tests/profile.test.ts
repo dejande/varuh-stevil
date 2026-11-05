@@ -23,8 +23,8 @@ describe('profiles', () => {
     const b = createProfile(input, 2);
     expect(a.id).not.toBe(b.id);
     expect(a.progress.prologueSeen).toBe(false);
-    const reset = resetProgress({ ...a, progress: { prologueSeen: true } });
-    expect(reset.progress.prologueSeen).toBe(false);
+    const reset = resetProgress({ ...a, progress: { prologueSeen: true, stars: { c1l1: 3 }, storyDone: true } });
+    expect(reset.progress).toEqual({ prologueSeen: false, stars: {}, storyDone: false });
     expect(reset.speed).toBe('fast');
     expect(reset.lang).toBe('en');
   });
@@ -41,7 +41,7 @@ describe('profiles', () => {
       speed: 'warp',
       inputMode: 'voice',
       settings: { ops: ['pow'], range: 50, missingNumber: 'yes' },
-      progress: { prologueSeen: true },
+      progress: { prologueSeen: true, stars: { c1l1: 3, c1l2: 7, c1boss: 0.5, nonsense: 2, c2l1: 'x' }, storyDone: 'yes' },
     });
     expect(p).toMatchObject({
       id: 'x',
@@ -53,8 +53,13 @@ describe('profiles', () => {
       speed: 'normal',
       inputMode: 'keypad',
       settings: { ops: ['add', 'sub'], range: 20, missingNumber: false },
-      progress: { prologueSeen: true },
+      progress: { prologueSeen: true, stars: { c1l1: 3, c1l2: 3 }, storyDone: false },
     });
+  });
+
+  it('profiles stored before milestone 3 get empty story progress', () => {
+    const p = sanitizeProfile({ id: 'x', name: 'Eva', progress: { prologueSeen: true } });
+    expect(p?.progress).toEqual({ prologueSeen: true, stars: {}, storyDone: false });
   });
 
   it('a saved profile survives sanitizing unchanged', () => {

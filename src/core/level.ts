@@ -15,6 +15,15 @@ export interface AnswerResult {
   correct: boolean;
   problem: Problem;
   expected: number;
+  /** Damage dealt to a boss by this answer (boss levels only). */
+  damage: number;
+}
+
+export interface LevelOptions {
+  /** Problems in a normal level. */
+  count?: number;
+  /** Boss level: the boss has this many hit points and problems keep coming until it is beaten. */
+  bossHp?: number;
 }
 
 /** Battle rules of one level, independent of rendering. */
@@ -24,13 +33,22 @@ export class LevelSession {
   mistakes = 0;
   defeated = 0;
   state: LevelState = 'playing';
+  readonly maxBossHp: number;
+  bossHp: number;
 
   constructor(
     private readonly settings: PracticeSettings,
     private readonly rng: Rng,
-    count = PROBLEMS_PER_LEVEL,
+    options: LevelOptions | number = {},
   ) {
-    this.queue = generateRound(settings, rng, count);
+    const o = typeof options === 'number' ? { count: options } : options;
+    this.maxBossHp = o.bossHp ?? 0;
+    this.bossHp = this.maxBossHp;
+    this.queue = generateRound(settings, rng, o.count ?? PROBLEMS_PER_LEVEL);
+  }
+
+  get isBoss(): boolean {
+    return this.maxBossHp > 0;
   }
 
   get current(): Problem | null {
@@ -45,19 +63,26 @@ export class LevelSession {
     return this.queue.length;
   }
 
-  answer(value: number): AnswerResult {
+  /** `fast`: answered under the target time; against a boss that does double damage (spec §2). */
+  answer(value: number, { fast = false } = {}): AnswerResult {
     const problem = this.requireCurrent();
     const expected = answerOf(problem);
     const correct = value === expected;
+    let damage = 0;
     this.queue.shift();
     if (correct) {
       this.defeated++;
+      if (this.isBoss) {
+        damage = fast ? 2 : 1;
+        this.bossHp = Math.max(0, this.bossHp - damage);
+      }
     } else {
       this.mistakes++;
       this.scheduleRetry(problem);
     }
+    this.refill();
     this.updateState();
-    return { correct, problem, expected };
+    return { correct, problem, expected, damage };
   }
 
   /** The monster reached the hero before an answer: counts as a mistake. */
@@ -66,8 +91,9 @@ export class LevelSession {
     this.queue.shift();
     this.mistakes++;
     this.scheduleRetry(problem);
+    this.refill();
     this.updateState();
-    return { correct: false, problem, expected: answerOf(problem) };
+    return { correct: false, problem, expected: answerOf(problem), damage: 0 };
   }
 
   loseHeart(): void {
@@ -91,7 +117,14 @@ export class LevelSession {
 
   private updateState(): void {
     if (this.hearts <= 0) this.state = 'lost';
-    else if (this.queue.length === 0) this.state = 'won';
+    else if (this.isBoss ? this.bossHp <= 0 : this.queue.length === 0) this.state = 'won';
+  }
+
+  /** A boss fight never runs out of problems: top the queue up with a fresh round. */
+  private refill(): void {
+    if (!this.isBoss || this.queue.length > RETRY_MAX) return;
+    const last = this.queue[this.queue.length - 1];
+    this.queue.push(...generateRound(this.settings, this.rng, PROBLEMS_PER_LEVEL, last ? factKey(last) : undefined));
   }
 
   /**

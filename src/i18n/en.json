@@ -103,5 +103,17 @@
   "editor.nameRequired": "Enter a name.",
   "editor.save": "Save",
   "editor.cancel": "Cancel",
-  "battle.choicesLabel": "Pick the answer"
+  "battle.choicesLabel": "Pick the answer",
+  "home.adventure": "Adventure!",
+  "map.title": "Map",
+  "map.prologue": "Prologue",
+  "map.locked": "locked",
+  "map.chapterLocked": "Opens when you beat the boss of the previous place.",
+  "map.bossNeeds": "Collect {count, plural, one {# more star} other {# more stars}} to face the boss.",
+  "level.title": "Level {n}",
+  "boss.tip": "The boss has 15 lives. Every right answer hits it, and a quick one hits it twice.",
+  "battle.bossHp": "The boss has {hp} of {max} lives left.",
+  "result.next": "Next",
+  "result.map": "Map",
+  "story.toMap": "To the map"
 }

@@ -36,9 +36,10 @@ npm run preview    # serve dist/ at http://localhost:4173/varuh-stevil/
 ## How to play
 
 1. **First start:** a parent creates the first player: name, hero name for the story (up to 12 characters), girl or boy hero (for Slovene word forms), hero colours, language, answering mode (number keypad or 4 answer choices), monster speed, operations, number range and task types (missing number in either position: `8 + ? = 13`, `? + 5 = 13`).
-2. **Prologue:** each new player first sees the story in four short panels, with their hero name in it. **Preskoči / Skip** jumps ahead; **Zgodba / Story** on the home screen replays it.
+2. **Prologue:** each new player first sees the story in four short panels, with their hero name in it. **Preskoči / Skip** jumps ahead; **Uvod / Prologue** on the map replays it.
 3. **Kdo igra? / Who's playing?** With more than one player, the game asks who is playing and remembers the last one. **Zamenjaj igralca / Switch player** on the home screen goes back to the list.
-4. Press **Začni / Start**. A fog imp drifts toward the hero with a problem. The bar at the top shows how far into the level you are, one segment per monster.
+4. **Na pot! / Adventure!** opens the story map: 5 places (village, lake, karst cave, great forest, summit), each with 5 levels and a boss. Each level starts with a short story panel. Finishing a level unlocks the next; a boss needs 10 stars from its chapter's levels, so levels can be replayed for more stars. Beating a boss shows what changed in the valley and opens the next place; after Pozabnik comes the epilogue. **Vadba / Practice** plays a free level with the player's settings.
+   In a level, monsters from that place approach the hero one by one with a problem. The bar at the top shows how far into the level you are, one segment per monster. A boss has 15 lives instead: every correct answer hits it once, an answer under the target time twice, and it staggers back.
 5. Answer on the keypad (or the keyboard: digits, Backspace, Enter), or tap one of the 4 choices.
    - Correct: the answer flies from the hero's staff as a golden number and dissolves the fog imp.
    - Wrong: the correct answer and one strategy hint appear, the monster steps closer, and the fact comes back 3–5 problems later.
@@ -69,6 +70,7 @@ Run `npm run test:all` before every commit. CI runs both before deploying. Local
 ```
 docs/spec.md              approved spec, source of truth
 src/core/                 game rules, no rendering (unit tested)
+  campaign.ts             chapters, levels, bosses, stars and unlocks
   choices.ts              the 4 answer choices and their distractors (§3)
   gate.ts                 parent gate question
   profile.ts              player model, hero colours, validation, sanitising stored data
@@ -85,8 +87,9 @@ src/story/                story.sl.json, story.en.json (frozen story text), stor
 src/game/BattleScene.ts   Phaser scene: hero, monster, spell (placeholder shapes)
 src/game/battle.ts        wires LevelSession + scene + DOM keypad and feedback
 src/storage/store.ts      players and device settings in IndexedDB (memory fallback)
-src/ui/                   screens in plain DOM: app shell, player picker, home, prologue,
-                          parent gate, parents' corner, player editor, result
+src/game/art.ts           chapter backgrounds, monsters and bosses (placeholder shapes)
+src/ui/                   screens in plain DOM: app shell, player picker, home, chapter map,
+                          level intro, story panels, parent gate, parents' corner, editor, result
 src/main.ts               starts the app
 src/homeScene.ts          home and prologue illustrations (inline SVG, sceneSvg())
 src/theme.ts              palette and font shared with Phaser
@@ -125,6 +128,15 @@ Strings live in `src/i18n/sl.json` and `src/i18n/en.json` as ICU MessageFormat. 
 ## Changelog
 
 Newest first. Every change to the repo adds a line here.
+
+### 2026-11-05: Milestone 3, the story
+
+- Chapter map with 5 places, 25 levels and 5 bosses; best stars per level saved per player; finishing a level unlocks the next, a boss needs 10 stars from its chapter, beating it opens the next place.
+- Each place has its own battlefield and monsters: fog imps in the village, water sprites at the lake, dripstone golems in the cave, wood goblins in the forest, fog crows on the summit. Bosses: Velikan Kozolec, Jezerski zmaj, Senčni netopir, Stari Hrast, Pozabnik (15 lives; a quick answer hits twice; they stagger back when hit and start over after reaching the hero). Ribica floats beside the hero from chapter 4.
+- Story text: a panel before every level, an outro after every boss, the epilogue at the end. Level panels and outros are the draft in `docs/story/level-panels-draft.md`, not yet approved; the epilogue is the frozen spec text.
+- Home: **Na pot!** opens the map, **Vadba** plays practice; the prologue replays from the map.
+- Results in the story offer Next, Play again and Map.
+- Tests: campaign rules and boss fights (unit), the map, unlocking, the boss star requirement, a full boss fight with its outro and the epilogue (end-to-end).
 
 ### 2026-11-05: Milestone 3 started: level panels draft, design directions
 

@@ -2,27 +2,32 @@ import Phaser from 'phaser';
 import { MonsterApproach } from '../core/approach';
 import type { HeroLook } from '../core/profile';
 import { COLORS, FONT_FAMILY } from '../theme';
+import { GROUND_Y, creatureLift, dissolveColour, drawBackground, drawRibica, makeBoss, makeMonster } from './art';
 
-export const WIDTH = 800;
-export const HEIGHT = 360;
-const GROUND_Y = 292;
+export { HEIGHT, WIDTH } from './art';
+
 const HERO_X = 150;
 const MONSTER_START_X = 730;
 const MONSTER_HIT_X = 235;
-
-/** Chapter 1 fog imps come in a few fog shades. */
-const FOG_SHADES = [COLORS.fog, 0xa9b7cf, 0xc4b4cf, 0xb3c4c9];
+const BOSS_START_X = 690;
+const BOSS_HIT_X = 260;
 
 export interface MonsterConfig {
   /** Seconds to reach the hero, or null for Relaxed. */
   seconds: number | null;
 }
 
+export interface SceneOptions {
+  /** Story chapter 1–5 (Practice uses the village). */
+  chapter: number;
+  boss: boolean;
+}
+
 const hex = (css: string) => Number.parseInt(css.replace('#', ''), 16);
 
 const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-/** Paper-cut alpine battlefield: the Keeper on the left, one fog imp drifting in from the right. */
+/** Paper-cut battlefield of a chapter: the Keeper on the left, a monster or the boss approaching from the right. */
 export class BattleScene extends Phaser.Scene {
   onReachHero: () => void = () => {};
   readonly ready: Promise<void>;
@@ -32,26 +37,48 @@ export class BattleScene extends Phaser.Scene {
   private orb?: Phaser.GameObjects.Arc;
   private approach = new MonsterApproach(null);
   private paused = false;
-  private shadeIndex = 0;
+  private variant = 0;
+  /** True while a step, knock-back or retreat animates the monster's position. */
+  private moving = false;
 
-  constructor(private readonly look: HeroLook) {
+  constructor(
+    private readonly look: HeroLook,
+    private readonly options: SceneOptions = { chapter: 1, boss: false },
+  ) {
     super('battle');
     this.ready = new Promise((r) => (this.resolveReady = r));
   }
 
   create(): void {
-    this.drawLandscape();
+    drawBackground(this, this.options.chapter);
     this.drawRogec();
+    if (this.options.chapter >= 4) drawRibica(this, HERO_X - 56, GROUND_Y - 112);
     this.drawHero();
     this.resolveReady();
   }
 
+  private get startX(): number {
+    return this.options.boss ? BOSS_START_X : MONSTER_START_X;
+  }
+
+  private get hitX(): number {
+    return this.options.boss ? BOSS_HIT_X : MONSTER_HIT_X;
+  }
+
+  private get baseY(): number {
+    return GROUND_Y - 6 - creatureLift(this.options.chapter, this.options.boss);
+  }
+
+  /** A new monster, or the boss (once per boss level). */
   spawnMonster(cfg: MonsterConfig): void {
     this.monster?.destroy();
     this.approach = new MonsterApproach(cfg.seconds);
-    this.monster = this.makeFogImp(FOG_SHADES[this.shadeIndex++ % FOG_SHADES.length]);
+    this.monster = this.options.boss ? makeBoss(this, this.options.chapter) : makeMonster(this, this.options.chapter, this.variant++);
+    this.monster.y = this.baseY;
+    this.moving = false;
     this.monster.setAlpha(0).setScale(0.6);
-    this.tweens.add({ targets: this.monster, alpha: 1, scale: 1, duration: 350, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: this.monster, alpha: 1, scale: 1, duration: this.options.boss ? 600 : 350, ease: 'Back.easeOut' });
+    if (this.options.boss && !reduceMotion()) this.cameras.main.shake(300, 0.004);
     this.placeMonster();
     this.paused = false;
   }
@@ -64,7 +91,7 @@ export class BattleScene extends Phaser.Scene {
   stepCloser(): boolean {
     if (!this.monster) return false;
     const reached = this.approach.stepCloser();
-    this.tweens.add({ targets: this.monster, x: this.xFor(this.approach.progress), duration: 300, ease: 'Quad.easeOut' });
+    this.moveTo(this.approach.progress, 300, 'Quad.easeOut');
     if (!reduceMotion()) this.cameras.main.shake(140, 0.003);
     return reached;
   }
@@ -74,11 +101,7 @@ export class BattleScene extends Phaser.Scene {
     this.approach.newProblem();
   }
 
-  /** Correct answer: the answer flies from the staff as a golden number and dissolves the fog. */
-  defeatMonster(answer: string): Promise<void> {
-    const target = this.monster;
-    if (!target) return Promise.resolve();
-    this.monster = undefined;
+  private castSpell(answer: string, target: Phaser.GameObjects.Container): Promise<void> {
     const fromX = HERO_X + 34;
     const fromY = GROUND_Y - 112;
     const spell = this.add
@@ -94,7 +117,7 @@ export class BattleScene extends Phaser.Scene {
       .setScale(0.5);
     const path = { t: 0 };
     const toX = target.x;
-    const toY = target.y - 48;
+    const toY = target.y - (this.options.boss ? 100 : 48);
     const peak = Math.min(fromY, toY) - 70;
     return new Promise((resolve) => {
       this.tweens.add({
@@ -110,28 +133,56 @@ export class BattleScene extends Phaser.Scene {
         },
         onComplete: () => {
           spell.destroy();
-          this.dissolve(target);
-          this.tweens.add({
-            targets: target,
-            scale: 1.35,
-            alpha: 0,
-            duration: 380,
-            onComplete: () => {
-              target.destroy();
-              resolve();
-            },
-          });
+          resolve();
         },
       });
     });
   }
 
-  /** The fog imp reached the hero: it wraps the hero in fog for a moment and blows away. */
+  /** Correct answer: the answer flies from the staff as a golden number and dissolves the monster (or the beaten boss). */
+  async defeatMonster(answer: string): Promise<void> {
+    const target = this.monster;
+    if (!target) return;
+    this.monster = undefined;
+    await this.castSpell(answer, target);
+    this.dissolve(target, this.options.boss ? 2.2 : 1);
+    await new Promise<void>((resolve) =>
+      this.tweens.add({
+        targets: target,
+        scale: this.options.boss ? 1.2 : 1.35,
+        alpha: 0,
+        duration: this.options.boss ? 900 : 380,
+        onComplete: () => {
+          target.destroy();
+          resolve();
+        },
+      }),
+    );
+  }
+
+  /** Correct answer against a boss that still stands: it flashes, staggers back and keeps coming. */
+  async hitBoss(answer: string, damage: number): Promise<void> {
+    const target = this.monster;
+    if (!target) return;
+    await this.castSpell(answer, target);
+    this.dissolve(target, 0.6 + damage * 0.3);
+    this.approach.knockBack();
+    await new Promise<void>((resolve) => {
+      this.tweens.add({ targets: target, alpha: 0.35, yoyo: true, repeat: damage, duration: 90 });
+      this.moveTo(this.approach.progress, 380, 'Back.easeOut', resolve);
+    });
+  }
+
+  /** The monster reached the hero: it wraps the hero for a moment and is gone; a boss goes back to its start instead. */
   hitHero(): Promise<void> {
     const target = this.monster;
-    this.monster = undefined;
     if (!reduceMotion()) this.cameras.main.shake(220, 0.006);
     if (!target) return Promise.resolve();
+    if (this.options.boss) {
+      this.approach.restart();
+      return new Promise((resolve) => this.moveTo(0, 700, 'Quad.easeOut', resolve));
+    }
+    this.monster = undefined;
     return new Promise((resolve) => {
       this.tweens.add({
         targets: target,
@@ -151,7 +202,7 @@ export class BattleScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     if (this.orb) this.orb.setScale(1 + Math.sin(time / 260) * 0.12);
     if (!this.monster) return;
-    this.monster.y = GROUND_Y - 6 + Math.sin(time / 300) * 4;
+    this.monster.y = this.baseY + Math.sin(time / 300) * 4;
     if (this.paused) return;
     const reached = this.approach.tick(delta / 1000);
     this.placeMonster();
@@ -162,69 +213,26 @@ export class BattleScene extends Phaser.Scene {
   }
 
   private xFor(progress: number): number {
-    return MONSTER_START_X + (MONSTER_HIT_X - MONSTER_START_X) * progress;
+    return this.startX + (this.hitX - this.startX) * progress;
   }
 
   private placeMonster(): void {
-    if (this.monster) this.monster.x = this.xFor(this.approach.progress);
+    if (this.monster && !this.moving) this.monster.x = this.xFor(this.approach.progress);
   }
 
-  /** A paper layer: the shape plus a darker copy a few pixels lower, like cut card on card. */
-  private paper(points: number[], colour: number, depth = 4): void {
-    const g = this.add.graphics();
-    g.fillStyle(COLORS.ink, 0.16);
-    g.fillPoints(this.toPoints(points, depth), true);
-    g.fillStyle(colour, 1);
-    g.fillPoints(this.toPoints(points, 0), true);
-  }
-
-  private toPoints(flat: number[], dy: number): Phaser.Math.Vector2[] {
-    const out: Phaser.Math.Vector2[] = [];
-    for (let i = 0; i < flat.length; i += 2) out.push(new Phaser.Math.Vector2(flat[i], flat[i + 1] + dy));
-    return out;
-  }
-
-  private drawLandscape(): void {
-    const sky = this.add.graphics();
-    sky.fillGradientStyle(COLORS.skyTop, COLORS.skyTop, COLORS.skyBottom, COLORS.skyBottom, 1);
-    sky.fillRect(0, 0, WIDTH, HEIGHT);
-    this.add.circle(118, 72, 30, COLORS.sun);
-
-    // Far ridge
-    this.paper([0, 220, 70, 170, 140, 196, 230, 140, 330, 190, 420, 150, 520, 186, 610, 130, 700, 176, 800, 150, 800, 300, 0, 300], COLORS.ridgeFar, 3);
-    // Triglav: three peaks, the middle one highest, with snow
-    const triglav = [380, 300, 440, 196, 476, 168, 505, 150, 528, 92, 552, 140, 580, 120, 620, 178, 690, 230, 740, 300];
-    this.paper(triglav, COLORS.mountain, 5);
-    this.paper([505, 150, 528, 92, 552, 140, 540, 134, 530, 146, 518, 136], COLORS.snow, 0);
-    this.paper([476, 168, 490, 160, 505, 150, 498, 166, 487, 162], COLORS.snow, 0);
-    this.paper([580, 120, 600, 148, 590, 144, 580, 152, 570, 140], COLORS.snow, 0);
-    // Rolling hills and meadow
-    this.paper([0, 250, 120, 226, 260, 246, 400, 222, 560, 248, 700, 230, 800, 244, 800, 320, 0, 320], COLORS.hill, 4);
-    this.drawKozolec(650, 236);
-    this.paper([0, GROUND_Y - 6, 200, GROUND_Y - 14, 420, GROUND_Y - 4, 640, GROUND_Y - 12, 800, GROUND_Y - 6, 800, HEIGHT, 0, HEIGHT], COLORS.meadow, 4);
-    for (let i = 0; i < 9; i++) {
-      const x = 40 + i * 92 + (i % 3) * 11;
-      const y = GROUND_Y + 22 + (i % 2) * 24;
-      this.add.circle(x, y, 3, COLORS.snow);
-      this.add.circle(x, y, 1.4, COLORS.honey);
-    }
-    // Pozabnik's fog rolling in from the right
-    for (let i = 0; i < 5; i++) {
-      const fog = this.add.ellipse(560 + i * 70, GROUND_Y - 4 - (i % 2) * 10, 150, 38, COLORS.fog, 0.32);
-      if (!reduceMotion()) this.tweens.add({ targets: fog, x: fog.x - 18, yoyo: true, repeat: -1, duration: 2600 + i * 400, ease: 'Sine.easeInOut' });
-    }
-  }
-
-  /** A small Slovene hayrack on the hill: the village of chapter 1. */
-  private drawKozolec(x: number, y: number): void {
-    const g = this.add.graphics();
-    g.fillStyle(COLORS.wood, 1);
-    g.fillRect(x, y - 30, 4, 30);
-    g.fillRect(x + 22, y - 30, 4, 30);
-    g.fillRect(x + 44, y - 30, 4, 30);
-    for (let i = 0; i < 4; i++) g.fillRect(x, y - 27 + i * 7, 48, 2);
-    g.fillStyle(COLORS.roof, 1);
-    g.fillTriangle(x - 6, y - 30, x + 24, y - 44, x + 54, y - 30);
+  private moveTo(progress: number, duration: number, ease: string, done?: () => void): void {
+    if (!this.monster) return done?.();
+    this.moving = true;
+    this.tweens.add({
+      targets: this.monster,
+      x: this.xFor(progress),
+      duration,
+      ease,
+      onComplete: () => {
+        this.moving = false;
+        done?.();
+      },
+    });
   }
 
   private drawRogec(): void {
@@ -279,49 +287,19 @@ export class BattleScene extends Phaser.Scene {
     if (!reduceMotion()) this.tweens.add({ targets: h, y: GROUND_Y - 3, yoyo: true, repeat: -1, duration: 1100, ease: 'Sine.easeInOut' });
   }
 
-  private makeFogImp(shade: number): Phaser.GameObjects.Container {
-    const m = this.add.container(MONSTER_START_X, GROUND_Y - 6);
-    // Trailing wisps
-    m.add(this.add.circle(52, -22, 12, shade, 0.5));
-    m.add(this.add.circle(70, -30, 8, shade, 0.35));
-    m.add(this.add.circle(84, -24, 5, shade, 0.25));
-    // Cloud body: overlapping puffs with a darker underside
-    m.add(this.add.ellipse(0, -14, 86, 30, COLORS.ink, 0.12));
-    for (const [x, y, r] of [
-      [-26, -30, 22],
-      [24, -30, 22],
-      [0, -50, 30],
-      [-12, -24, 22],
-      [14, -22, 22],
-    ]) {
-      m.add(this.add.circle(x, y, r, shade));
-    }
-    m.add(this.add.circle(-8, -62, 10, 0xffffff, 0.35));
-    // Face
-    m.add(this.add.ellipse(-12, -42, 16, 19, 0xffffff));
-    m.add(this.add.ellipse(12, -42, 16, 19, 0xffffff));
-    m.add(this.add.circle(-14, -40, 5, COLORS.ink));
-    m.add(this.add.circle(10, -40, 5, COLORS.ink));
-    m.add(this.add.circle(-12, -42, 1.6, 0xffffff));
-    m.add(this.add.circle(12, -42, 1.6, 0xffffff));
-    m.add(this.add.ellipse(0, -24, 10, 8, COLORS.ink, 0.75));
-    m.add(this.add.circle(-24, -30, 4, COLORS.berry, 0.35));
-    m.add(this.add.circle(24, -30, 4, COLORS.berry, 0.35));
-    return m;
-  }
-
-  /** Fog breaks into puffs that drift up, with a few honey sparks. */
-  private dissolve(target: Phaser.GameObjects.Container): void {
+  /** The creature breaks into puffs that drift away, with a few honey sparks. */
+  private dissolve(target: Phaser.GameObjects.Container, size = 1): void {
     const cx = target.x;
-    const cy = target.y - 40;
+    const cy = target.y - 40 * size;
+    const colour = dissolveColour(this.options.chapter);
     for (let i = 0; i < 12; i++) {
       const angle = (Math.PI * 2 * i) / 12;
       const isSpark = i % 3 === 0;
-      const dot = this.add.circle(cx, cy, isSpark ? 5 : 11, isSpark ? COLORS.honey : COLORS.fog, isSpark ? 1 : 0.7);
+      const dot = this.add.circle(cx, cy, (isSpark ? 5 : 11) * Math.sqrt(size), isSpark ? COLORS.honey : colour, isSpark ? 1 : 0.7);
       this.tweens.add({
         targets: dot,
-        x: cx + Math.cos(angle) * (isSpark ? 70 : 50),
-        y: cy + Math.sin(angle) * (isSpark ? 70 : 40) - 20,
+        x: cx + Math.cos(angle) * (isSpark ? 70 : 50) * size,
+        y: cy + Math.sin(angle) * (isSpark ? 70 : 40) * size - 20,
         alpha: 0,
         scale: isSpark ? 0.4 : 1.6,
         duration: 520,

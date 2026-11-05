@@ -4,5 +4,75 @@
     "Nekega jutra se je iz gora spustila siva megla. Z njo je prišel Pozabnik in pobral vsa števila.",
     "Mlinar ne ve več, koliko vreč moke ima, in pastir ne ve, koliko ovac pase.",
     "Kozliček Rogec pride k tebi: »{hero}, ti si {gender, select, girl {zadnja Varuhinja} other {zadnji Varuh}} števil. Pomagaj nam!«"
+  ],
+  "chapterNames": [
+    "Vas pod goro",
+    "Jezero",
+    "Kraška jama",
+    "Pohorski gozd",
+    "Vrh gore"
+  ],
+  "bossNames": [
+    "Velikan Kozolec",
+    "Jezerski zmaj",
+    "Senčni netopir",
+    "Stari Hrast",
+    "Pozabnik"
+  ],
+  "chapter1": [
+    "Megla se vleče med hišami v vasi pod goro. Megleni škratki skrivajo števila po dvoriščih.",
+    "Kmetica ne ve več, koliko jajc so znesle njene kokoši. Preženi škratke, ki čepijo v kurniku!",
+    "Na vaški tržnici nihče ne zna plačati jabolk. Rogec poskakuje: »Števila so blizu, čutim jih!«",
+    "Zvonik ne ve, kolikokrat naj odbije poldne. Pomagaj mu, preden se megla zgosti.",
+    "Za vasjo stoji ogromen kozolec, ves zavit v meglo. Med snopi se nekaj premika …"
+  ],
+  "chapter2": [
+    "Pot te pripelje do jezera. Voda je mirna, a iz nje kukajo vodni duhci.",
+    "Ribič ne ve, koliko rib je ujel. Duhci se mu hihitajo iz valov.",
+    "Labodi ne najdejo poti domov, ker so pozabili, koliko jih je. Preženi duhce, ki jih plašijo!",
+    "Sredi jezera je otoček s cerkvico. Rogec si zakrije oči: »Voda je mrzla, jaz ostanem na obali!«",
+    "Jezero začne valovati. Iz globine se dviga nekaj velikega in luskastega …"
+  ],
+  "chapter3": [
+    "Zmajev čoln te pripelje do kraške jame. V temi kaplja: kap, kap, kap.",
+    "Kapniki rastejo s stropa in iz tal. Nekateri se premikajo: to so kapniški golemi!",
+    "Jamski vodnik ne ve, koliko stopnic vodi v globino. Pomagaj mu, da se ne izgubi.",
+    "V podzemni reki nekaj zasveti. Rogec šepeta: »Pst, nekdo naju opazuje …«",
+    "Najgloblje v jami je temno kot ponoči. Nad tabo zašumijo velika krila."
+  ],
+  "chapter4": [
+    "Ribica sveti pred vama, ko prideta v velik gozd. Drevesa segajo do neba.",
+    "Lesni škratje so zmešali vse kažipote. Nihče ne ve, koliko korakov je še do koče.",
+    "Veverica je skrila lešnike, zdaj pa ne ve, koliko jih ima. Škratje se ji posmehujejo z vej.",
+    "Na jasi plešejo kresnice. Ribica jim pomežikne in kresnice ti pokažejo pot naprej.",
+    "Sredi gozda stoji star, star hrast. Njegove veje škripajo, kot da bi bil jezen."
+  ],
+  "chapter5": [
+    "Stari Hrast ti je pokazal pot. Zdaj se vzpenjaš proti vrhu, kjer je megla najgostejša.",
+    "Meglene vrane krožijo nad skalami in kričijo napačna števila.",
+    "Planinska koča je prazna, ker planinci ne vedo več, koliko jih je. Rogec pogumno stopi naprej: »Skupaj zmoremo!«",
+    "Veter raztrga meglo in za trenutek vidiš vrh. Tam stoji nekdo v sivem plašču.",
+    "{hero}, to je Pozabnik! Ribica posveti, Rogec se postavi ob tebe. Čas je."
+  ],
+  "outro1": [
+    "Megla se razkadi in Velikan Kozolec se nasmehne: »Spet vem, koliko snopov imam!« Vas pod goro spet šteje."
+  ],
+  "outro2": [
+    "Zmajeve luske se spet svetijo. Jezerski zmaj ti posodi čoln, da prepluješ jezero."
+  ],
+  "outro3": [
+    "V jamo se vrne svetloba. Iz reke prileze mala človeška ribica in vama posveti.",
+    "Ime ji je Ribica in odslej gre z vama."
+  ],
+  "outro4": [
+    "Stari Hrast se spomni gozdnih poti. S koreninami ti pokaže stezo proti gori."
+  ],
+  "outro5": [
+    "Megla se dvigne. Pozabnik prizna, da je bil osamljen, ker ga nihče ni štel med prijatelje.",
+    "Ti ga šteješ med prijatelje in Pozabnik vrne vsa števila."
+  ],
+  "epilogue": [
+    "Števila so se vrnila v dolino. Ljudje spet štejejo, merijo in delijo kruh na enake kose.",
+    "Rogec se nasmehne: »Varuh števil ne neha nikoli vaditi.«"
   ]
 }

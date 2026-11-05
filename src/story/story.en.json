@@ -4,5 +4,75 @@
     "One morning a grey fog rolled down from the mountains. With it came the Forgetter, and he took every number.",
     "The miller no longer knows how many sacks of flour he has, and the shepherd can't count his sheep.",
     "Rogec the little ibex comes to you: \"{hero}, you are the last Keeper of Numbers. Help us!\""
+  ],
+  "chapterNames": [
+    "The village",
+    "The lake",
+    "The karst cave",
+    "The great forest",
+    "The summit"
+  ],
+  "bossNames": [
+    "The Hayrack Giant",
+    "The Lake Dragon",
+    "The Shadow Bat",
+    "The Old Oak",
+    "The Forgetter"
+  ],
+  "chapter1": [
+    "Fog creeps between the houses of the village below the mountain. Fog imps are hiding the numbers in the yards.",
+    "The farmer's wife no longer knows how many eggs her hens have laid. Chase away the imps crouching in the henhouse!",
+    "At the village market nobody can pay for the apples. Rogec hops about: \"The numbers are close, I can feel them!\"",
+    "The bell tower doesn't know how many times to ring at noon. Help it before the fog grows thicker.",
+    "Behind the village stands a huge hayrack, all wrapped in fog. Something is moving among the sheaves …"
+  ],
+  "chapter2": [
+    "The path leads you to the lake. The water is still, but water sprites peek out of it.",
+    "The fisherman doesn't know how many fish he has caught. The sprites giggle at him from the waves.",
+    "The swans can't find their way home because they forgot how many of them there are. Chase off the sprites that scare them!",
+    "In the middle of the lake is a little island with a church. Rogec covers his eyes: \"The water is cold, I'm staying on the shore!\"",
+    "The lake starts to ripple. Something big and scaly is rising from the deep …"
+  ],
+  "chapter3": [
+    "The dragon's boat brings you to a karst cave. In the dark, water drips: drip, drip, drip.",
+    "Stalactites grow from the ceiling and the floor. Some of them are moving: they are dripstone golems!",
+    "The cave guide doesn't know how many steps lead down into the deep. Help him so he doesn't get lost.",
+    "Something glimmers in the underground river. Rogec whispers: \"Shh, someone is watching us …\"",
+    "Deepest in the cave it is as dark as night. Big wings rustle above you."
+  ],
+  "chapter4": [
+    "Ribica lights the way, and the two of you reach a great forest. The trees reach up to the sky.",
+    "The wood goblins have mixed up all the signposts. Nobody knows how many steps it still is to the hut.",
+    "A squirrel hid her hazelnuts and now doesn't know how many she has. The goblins tease her from the branches.",
+    "Fireflies dance in a clearing. Ribica winks at them, and they show you the way on.",
+    "In the middle of the forest stands an old, old oak. Its branches creak as if it were angry."
+  ],
+  "chapter5": [
+    "The Old Oak has shown you the path. Now you climb toward the summit, where the fog is thickest.",
+    "Fog crows circle over the rocks and squawk the wrong numbers.",
+    "The mountain hut is empty because the climbers no longer know how many of them there are. Rogec bravely steps forward: \"Together we can do it!\"",
+    "The wind tears the fog apart, and for a moment you see the summit. Someone in a grey cloak is standing there.",
+    "{hero}, it's the Forgetter! Ribica shines her light, and Rogec stands by your side. It's time."
+  ],
+  "outro1": [
+    "The fog clears and the Hayrack Giant smiles: \"I know how many sheaves I have again!\" The village counts again."
+  ],
+  "outro2": [
+    "The dragon's scales shine again. The Lake Dragon lends you a boat to cross the lake."
+  ],
+  "outro3": [
+    "Light returns to the cave. A little olm crawls out of the river and lights the way.",
+    "Her name is Ribica, and from now on she comes with you."
+  ],
+  "outro4": [
+    "The Old Oak remembers the forest's paths. With its roots it shows you the trail to the mountain."
+  ],
+  "outro5": [
+    "The fog lifts. The Forgetter admits he was lonely, because no one ever counted him among their friends.",
+    "You count him in, and he gives all the numbers back."
+  ],
+  "epilogue": [
+    "The numbers are back in the valley. People count, measure and share bread into equal pieces again.",
+    "Rogec smiles: \"A Keeper of Numbers never stops practising.\""
   ]
 }
