@@ -24,7 +24,7 @@ export default defineConfig(({ command, isPreview }) => {
         manifest: {
           name: 'Varuh števil',
           short_name: 'Varuh števil',
-          description: 'Math practice battles / Vaje iz računanja',
+          description: 'Vadi računanje in preženi Pozabnikovo meglo. Math practice battles in Slovene and English.',
           lang: 'sl',
           start_url: base,
           scope: base,

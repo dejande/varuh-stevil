@@ -6,6 +6,7 @@ Family use only: no accounts, server, ads, purchases or analytics, and no networ
 
 - **Spec (source of truth):** [docs/spec.md](docs/spec.md)
 - **Status and next steps for whoever works on it next:** [CLAUDE.md](CLAUDE.md)
+- **Publishing texts** (repo description, store-style descriptions, release notes, install guide): [docs/publishing.md](docs/publishing.md)
 - **Changelog:** [below](#changelog)
 
 ## Quick start
@@ -116,6 +117,11 @@ The GitHub repository is not created yet. To publish:
 ## Changelog
 
 Newest first. Every change to the repo adds a line here.
+
+### 2026-11-05: Publishing texts
+
+- `docs/publishing.md`: GitHub description and topics, short and long descriptions (SL/EN), v0.1.0 release notes, install guide for tablets, privacy note, a message for the family.
+- The installed app's description now says what the game is, in both languages.
 
 ### 2026-11-05: Rogec's horns
 
